@@ -47,7 +47,7 @@
 }
 </style>
 <h1>api documentation for
-    <a>fakeredis (v2.0.0)</a>
+    <a href="https://github.com/hdachev/fakeredis#readme">fakeredis (v2.0.0)</a>
 </h1>
 <h4>Fake redis for testing, works as a drop-in replacement for node_redis</h4>
 <div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
@@ -129,12 +129,6 @@
         <li>
 
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">fakeredis.</span>helpers</span>
-
-        </li>
-
-        <li>
-
-            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">fakeredis.</span>main</span>
 
         </li>
 
@@ -6933,58 +6927,6 @@
 
     </ol></li>
 
-    <li class="apidocModuleLi"><a href="#apidoc.module.fakeredis.main">module fakeredis.main</a><ol>
-
-        <li>
-
-            <span class="apidocSignatureSpan">boolean <span class="apidocSignatureSpan">fakeredis.main.</span>fast</span>
-
-        </li>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.fakeredis.main.Multi">
-            function <span class="apidocSignatureSpan">fakeredis.main.</span>Multi
-            <span class="apidocSignatureSpan">(client, args)</span>
-            </a>
-
-        </li>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.fakeredis.main.RedisClient">
-            function <span class="apidocSignatureSpan">fakeredis.main.</span>RedisClient
-            <span class="apidocSignatureSpan">(options, stream)</span>
-            </a>
-
-        </li>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.fakeredis.main.createClient">
-            function <span class="apidocSignatureSpan">fakeredis.main.</span>createClient
-            <span class="apidocSignatureSpan">(port, host, options)</span>
-            </a>
-
-        </li>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.fakeredis.main.print">
-            function <span class="apidocSignatureSpan">fakeredis.main.</span>print
-            <span class="apidocSignatureSpan">(err, reply)</span>
-            </a>
-
-        </li>
-
-        <li>
-
-            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">fakeredis.main.</span>backends</span>
-
-        </li>
-
-    </ol></li>
-
 </ol></div>
 
 <div class="apidocSectionDiv">
@@ -7279,8 +7221,6 @@ You can also just name your backends arbitrarily:
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
-
-
 
 
 
@@ -7873,21 +7813,21 @@ redis.BITCOUNT("bitCountKey", 0, 3, test("BITCOUNT of substring", null, 19));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.LLEN("lremlist", test("LLEN", null, 4));
-redis.LREM("lremlist", 0, "b", test("LREM 0", null, 4));
-redis.LLEN("lremlist", test("LLEN empty", null, 0));
+    });
+};
 
+tests.BLPOP = function () {
+    var name = "BLPOP";
 
-// Blocking list commands !
+    client.rpush("blocking list", "initial value", function (err, res) {
+client2.<span class="apidocCodeKeywordSpan">BLPOP</span>("blocking list", 0, function (err, res) {
+    assert.strictEqual("blocking list", res[0].toString());
+    assert.strictEqual("initial value", res[1].toString());
 
-redis.<span class="apidocCodeKeywordSpan">BLPOP</span>("BL-a", "BL-b", "BL-c", 0, test("BLPOP
-", null, [ "BL-a", "AAA" ]));
-
-redis2.LPUSH("BL-a", "AAA", test("LPUSH + BLPOP", null, 1));
-redis2.BRPOP("BL-b", "BL-c", 0, test("BRPOP", null, [ "BL-b", "BB3" ]));
-
-redis.RPUSH("BL-b", "BB1", "BB2", "BB3", test("RPUSH + BRPOP", null, 3));
-redis.BLPOP("BL-a", "BL-c", 0, test("BLPOP", null, [ "BL-c", "CC1" ]));
+    client.rpush("blocking list", "wait for this value");
+});
+client2.BLPOP("blocking list", 0, function (err, res) {
+    assert.strictEqual("blocking list", res[0].toString());
 ...</pre></li>
     </ul>
 
@@ -8247,7 +8187,23 @@ var redis1 = fake.createClient("weird"),
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["foo"], require_number(0, name));
+    client.exists(["foo2"], last(name, require_number(1, name)));
+};
+
+tests.DBSIZE = function () {
+    var name = "DBSIZE";
+    client.set(['foo', 'bar'], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">DBSIZE</span>([], last(name, require_number_pos("DBSIZE")));
+};
+
+tests.GET_1 = function () {
+    var name = "GET_1";
+    client.set(["get key", "get val"], require_string("OK", name));
+    client.GET(["get key"], last(name, require_string("get val", name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -8466,23 +8422,22 @@ redis.MSET("nonx", "do", test("MSET", null, OK));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.set("foo", "bar", require_string("OK", name));
+    client.EXISTS("foo", require_number(1, name));
+    client.EXISTS("foo2", last(name, require_number(0, name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.<span class="apidocCodeKeywordSpan">DEL</span>("hello", "nonex", "what", test("DEL count
-", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
-redis.GETBIT("hello", 21, test("GETBIT", null, 1));
-redis.SETBIT("hello", 7, 1, test("SETBIT", null, 0));
+tests.DEL = function () {
+    var name = "DEL";
+    client.<span class="apidocCodeKeywordSpan">DEL</span>("delkey", require_number_any(name));
+    client.set("delkey", "delvalue", require_string("OK", name));
+    client.DEL("delkey", require_number(1, name));
+    client.exists("delkey", require_number(0, name));
+    client.DEL("delkey", require_number(0, name));
+    client.mset("delkey", "delvalue", "delkey2", "delvalue2", require_string("OK"
+;, name));
+    client.DEL("delkey", "delkey2", last(name, require_number(2, name)));
+};
 ...</pre></li>
     </ul>
 
@@ -8839,24 +8794,21 @@ redis.BGREWRITEAOF(test("BGREWRITEAOF", null, "OK"));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
+});
+};*/
 
-redis.EXPIRE("out", 60);
-redis.RENAME("out", "outandabout", test("RENAME", null, OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
-redis.TTL("outandabout", test("RENAME / ZADD / TTL", null, 60));
-redis.<span class="apidocCodeKeywordSpan">EXISTS</span>("out", test("EXISTS no", null, 0));
-redis.EXISTS("outandabout", test("EXISTS yes", null, 1));
+tests.EXISTS = function () {
+var name = "EXISTS";
+client.del("foo", "foo2", require_number_any(name));
+client.set("foo", "bar", require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">EXISTS</span>("foo", require_number(1, name));
+client.EXISTS("foo2", last(name, require_number(0, name)));
+};
 
-redis.ZADD("lexi", 1, "AAA", 1, "BBB", 1, "ZZZ", 1, "XXX", 1, "YYY",
-2, "FFF");
-redis.ZRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "AAA", "BBB", &amp;#
-x22;XXX", "YYY", "ZZZ", "FFF" ]));
-redis.ZREVRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "FFF", "ZZZ"
-;, "YYY", "XXX", "BBB", "AAA" ]));
-
-redis.ZADD("otherzset", 100, "whatever");
+tests.DEL = function () {
+var name = "DEL";
+client.DEL("delkey", require_number_any(name));
+client.set("delkey", "delvalue", require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -8904,22 +8856,21 @@ redis.ZADD("otherzset", 100, "whatever");
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    next(name);
+});
+};
 
-redis.SETRANGE("hi", 0, "Hello World", test("SETRANGE upsert", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello World"));
-redis.GETRANGE("hi", -5, -1, test("GETRANGE negneg", null, "World"));
-redis.SETRANGE("hi", 6, "Redis", test("SETRANGE offset", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello Redis"));
+tests.EXPIRE = function () {
+var name = "EXPIRE";
+client.set(['expiry key', 'bar'], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">EXPIRE</span>(["expiry key", "1"], require_number_pos(name));
+setTimeout(function () {
+    client.exists(["expiry key"], last(name, require_number(0, name)));
+}, 2000);
+};
 
-redis.<span class="apidocCodeKeywordSpan">EXPIRE</span>("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.TTL("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
+tests.TTL = function () {
+var name = "TTL";
 ...</pre></li>
     </ul>
 
@@ -9058,7 +9009,23 @@ redis.GET("hello", test("GET expiring", null, "world"));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+client.<span class="apidocCodeKeywordSpan">FLUSHDB</span>(require_string("OK", name));
+client.dbsize(last(name, require_number(0, name)));
+};
+
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
+...</pre></li>
     </ul>
 
 
@@ -9381,21 +9348,22 @@ redis.GET("hello", test("GET expiring", null, "world"));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-(function () {
-var redis  = fake.createClient("stuff"),
-    redis2 = fake.createClient("stuff");
+client.set(['foo', 'bar'], require_string("OK", name));
+client.DBSIZE([], last(name, require_number_pos("DBSIZE")));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.GET_1 = function () {
+var name = "GET_1";
+client.set(["get key", "get val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">GET</span>(["get key"], last(name, require_string("get val", name
+)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.<span class="apidocCodeKeywordSpan">GET</span>("hello", test("SET / GET", null, "world"));
+tests.GET_2 = function() {
+var name = "GET_2";
 
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
+// tests handling of non-existent keys
+client.GET('this_key_shouldnt_exist', last(name, require_null(name)));
 ...</pre></li>
     </ul>
 
@@ -9569,23 +9537,23 @@ redis.PERSIST("hello");
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+client.get(["set key"], last(name, require_string("set val", name)));
+client.SET(["set key", undefined], require_error(name));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.GETSET = function () {
+var name = "GETSET";
+client.set(["getset key", "getset val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">GETSET</span>(["getset key", "new getset val"], require_string(&amp;#
+x22;getset val", name));
+client.get(["getset key"], last(name, require_string("new getset val", name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.<span class="apidocCodeKeywordSpan">GETSET</span>("what", "where", test("GETSET", null, "
-;who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
+tests.MGET = function () {
+var name = "MGET";
+client.mset(["mget keys 1", "mget val 1", "mget keys 2", "mget val 2", "mget keys 3
+", "mget val 3"], require_string("OK", name));
+client.MGET("mget keys 1", "mget keys 2", "mget keys 3", function (err, results) {
 ...</pre></li>
     </ul>
 
@@ -9760,21 +9728,21 @@ var out = this.HKEYS(key), self = this;
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-return this.structGet(HASH, key, field);
-  }
+    field1 = new Buffer("0123456789"),
+    value1 = new Buffer("abcdefghij"),
+    field2 = new Buffer(0),
+    value2 = new Buffer(0),
+    name = "HSET";
 
-, HGETALL: function (key) {
-var fields = this.HKEYS(key);
-var i, n = fields.length, out = [];
-for (i = 0; i &lt; n; i++)
-  out.push(fields[i], this.<span class="apidocCodeKeywordSpan">HGET</span>(key, fields[i]));
+client.HSET(key, field1, value1, require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">HGET</span>(key, field1, require_string(value1.toString(), name));
 
-return out;
-  }
+// Empty value
+client.HSET(key, field1, value2, require_number(0, name));
+client.HGET([key, field1], require_string("", name));
 
-, hIncrBy: function (parse, key, field, incr) {
-var K = this.getKey(HASH, key, true);
-if (K instanceof ERROR) return K;
+// Empty key, empty value
+client.HSET([key, field2, value1], require_number(1, name));
 ...</pre></li>
     </ul>
 
@@ -9822,25 +9790,22 @@ if (K instanceof ERROR) return K;
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.ZRANGE("out2", 0, -1, test("ZINTERSTORE with sets", null, ["v1", "v2"]));
-redis.ZREVRANGE("out2", 0, -1, "withscores", test("ZINTERSTORE with sets withscores", null, ["
-;v2", "3", "v1", "2"]));
-redis.ZUNIONSTORE("out3", 2, "newset", "newzset");
-redis.ZRANGE("out3", 0, -1, "withscores", test("ZUNIONSTORE with sets withscores", null, ["v1
-", "2", "v2", "3", "v3", "3"]));
+client.exists(["mset3"], require_number(1, name));
+client.exists(["mset4"], last(name, require_number(1, name)));
+};
 
-// Hashes.
-
-redis.<span class="apidocCodeKeywordSpan">HGETALL</span>("nonex", test("HGETALL nonex", null, null));
-
-redis.HMSET("h", { "f1" : "v1", "field-3" : "3" }, test("HMSET {} ok"
-;, null, OK));
-redis.HMSET("h", "f2", "v2", "field-4", 4, test("HMSET ... ok", null, OK));
-
-redis.HSETNX("h", "f1", "V1", test("HSETNX safe", null, 0));
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
+tests.HGETALL = function () {
+var name = "HGETALL";
+client.hmset(["hosts", "mjr", "1", "another", "23", "home", "1234
+"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">HGETALL</span>(["hosts"], function (err, obj) {
+    assert.strictEqual(null, err, name + " result sent back unexpected error: " + err);
+    assert.strictEqual(3, Object.keys(obj).length, name);
+    assert.strictEqual("1", obj.mjr.toString(), name);
+    assert.strictEqual("23", obj.another.toString(), name);
+    assert.strictEqual("1234", obj.home.toString(), name);
+    next(name);
+});
 ...</pre></li>
     </ul>
 
@@ -9888,28 +9853,21 @@ x22;f2": "v2", "field-3": "3", "field-4": "4" }));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
+    next(name);
+});
+};
 
-redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "hash
-", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", &amp;#
-x22;3", "field-4", "4" ] ]));
+tests.HINCRBY = function () {
+var name = "HINCRBY";
+client.hset("hash incr", "value", 10, require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">HINCRBY</span>("hash incr", "value", 1, require_number(11, name));
+client.HINCRBY("hash incr", "value 2", 1, last(name, require_number(1, name)));
+};
 
-redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3", &amp;#
-x22;field-4" ]));
-redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-redis.<span class="apidocCodeKeywordSpan">HINCRBY</span>("h", "field-3", 3, test("HINCRBYFLOAT success&amp;#
-x22;, null, 6));
-redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "v2
-" ]));
-redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", "
-;v1", "v2" ]));
-redis.HGETALL("h", function (err, data) {
-    redis.multi()
-        .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-            .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+tests.SUBSCRIBE = function () {
+var client1 = client, msg_count = 0, name = "SUBSCRIBE";
+
+client1.on("subscribe", function (channel, count) {
 ...</pre></li>
     </ul>
 
@@ -10071,7 +10029,23 @@ redis.HGETALL("h", function (err, data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        value1 = new Buffer("abcdefghij"),
+        field2 = new Buffer(0),
+        value2 = new Buffer(0),
+        name = "HSET",
+        timeout = 1000;
+
+    client.HSET(key, field1, value1, function (err, results) {
+        client.<span class="apidocCodeKeywordSpan">HLEN</span>(key, function (err, len) {
+            assert.ok(2 === +len);
+            next(name);
+        });
+    });
+};
+
+tests.HMSET_BUFFER_AND_ARRAY = function () {
+...</pre></li>
     </ul>
 
 
@@ -10119,26 +10093,21 @@ redis.HGETALL("h", function (err, data) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-    redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "
-hash", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3"
-;, "3", "field-4", "4" ] ]));
+// test for numeric key
+client.HMSET(key3, {
+    "0123456789": "abcdefghij",
+    "some manner of key": "a type of value"
+}, require_string("OK", name));
 
-    redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3"
-;, "field-4" ]));
-    redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-    redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-    redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "
-;v2" ]));
-    redis.<span class="apidocCodeKeywordSpan">HMGET</span>("h", "F1", "f1", "f2", test(&amp;#
-x22;HMGET", null, [ "V1", "v1", "v2" ]));
-    redis.HGETALL("h", function (err, data) {
-redis.multi()
-    .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-        .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+client.<span class="apidocCodeKeywordSpan">HMGET</span>(key1, "0123456789", "some manner of key", function (
+err, reply) {
+    assert.strictEqual("abcdefghij", reply[0].toString(), name);
+    assert.strictEqual("a type of value", reply[1].toString(), name);
+});
 
-redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-redis.TYPE("h", test("TYPE hash", null, "hash"));
+client.HMGET(key2, "0123456789", "some manner of key", function (err, reply) {
+    assert.strictEqual("abcdefghij", reply[0].toString(), name);
+    assert.strictEqual("a type of value", reply[1].toString(), name);
 ...</pre></li>
     </ul>
 
@@ -10189,26 +10158,21 @@ redis.TYPE("h", test("TYPE hash", null, "hash"));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.ZUNIONSTORE("out3", 2, "newset", "newzset");
-redis.ZRANGE("out3", 0, -1, "withscores", test("ZUNIONSTORE with sets withscores", null, ["v1
-", "2", "v2", "3", "v3", "3"]));
+var key = "test hash",
+    field1 = "buffer",
+    value1 = new Buffer("abcdefghij"),
+    field2 = "array",
+    value2 = ["array contents"],
+    name = "HSET";
 
-// Hashes.
+client.<span class="apidocCodeKeywordSpan">HMSET</span>(key, field1, value1, field2, value2, last(name, require_string("OK&amp;#
+x22;, name)));
+};
 
-redis.HGETALL("nonex", test("HGETALL nonex", null, null));
+// TODO - add test for HMSET with optional callbacks
 
-redis.<span class="apidocCodeKeywordSpan">HMSET</span>("h", { "f1" : "v1", "field-3" : &amp;#
-x22;3" }, test("HMSET {} ok", null, OK));
-redis.HMSET("h", "f2", "v2", "field-4", 4, test("HMSET ... ok", null, OK));
-
-redis.HSETNX("h", "f1", "V1", test("HSETNX safe", null, 0));
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
-
-redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "hash
-", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", &amp;#
-x22;3", "field-4", "4" ] ]));
+tests.HMGET = function () {
+var key1 = "test hash 1", key2 = "test hash 2", key3 = 123456789, name = "HMGET";
 ...</pre></li>
     </ul>
 
@@ -10326,21 +10290,21 @@ x27;woot', '3', 'woo', '4']]));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-    redis.TYPE("h", test("TYPE hash", null, "hash"));
-    redis.HDEL("h", "field-4", "f1", "f2");
-    redis.TYPE("h", test("TYPE none", null, "none"));
-});
+var key = "test hash",
+    field1 = new Buffer("0123456789"),
+    value1 = new Buffer("abcdefghij"),
+    field2 = new Buffer(0),
+    value2 = new Buffer(0),
+    name = "HSET";
 
-redis.HDEL('hnonex', 'moot', test("HDEL nonex", null, 0));
-redis.<span class="apidocCodeKeywordSpan">HSET</span>('w00t', 'field', 'value', function () {
-    redis.HDEL('w00t', 'moot', test("HDEL nonex field", null, 0));
-});
+client.<span class="apidocCodeKeywordSpan">HSET</span>(key, field1, value1, require_number(1, name));
+client.HGET(key, field1, require_string(value1.toString(), name));
 
+// Empty value
+client.HSET(key, field1, value2, require_number(0, name));
+client.HGET([key, field1], require_string("", name));
 
-// Lists, non-blocking.
-
-redis.LPUSH("list", [ "one", "two", "three" ], test("LPUSH", null, 3));
+// Empty key, empty value
 ...</pre></li>
     </ul>
 
@@ -10789,24 +10753,22 @@ return old;
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.TYPE("not here yet", require_string("none", name));
+    client.TYPE(["hash key"], last(name, require_string("hash", name)));
+};
 
-redis.ZUNIONSTORE(
-    "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2,
-0.5, "aggregate", "max",
-    test("ZUNIONSTORE with weights + aggregate", null, 3 )
-);
-redis.ZRANGE("out", 0, -1, "WITHSCORES", test("ZUNIONSTORE / ZRANGE", null, [ "one", "
-;2.5", "two", "5", "three", "6" ]));
-
-redis.<span class="apidocCodeKeywordSpan">KEYS</span>("*z?et*", test("KEYS with ? and *", null, [ "myzset
-", "zset1", "zset2" ]));
-redis.KEYS("my[sz]*et", test("KEYS with [] and *", null, [ "myset", "myzset" ]));
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
-
-redis.EXPIRE("out", 60);
-redis.RENAME("out", "outandabout", test("RENAME", null, OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
+tests.KEYS = function () {
+    var name = "KEYS";
+    client.mset(["test keys 1", "test val 1", "test keys 2", "test val 2"], require_string
+("OK", name));
+    client.<span class="apidocCodeKeywordSpan">KEYS</span>(["test keys*"], function (err, results) {
+        assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+        assert.strictEqual(2, results.length, name);
+        assert.ok(~results.indexOf("test keys 1"));
+        assert.ok(~results.indexOf("test keys 2"));
+        next(name);
+    });
+};
 ...</pre></li>
     </ul>
 
@@ -11605,22 +11567,23 @@ redis.LTRIM("list3", -3, -1, test("LTRIM negneg", null, OK));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.AUTH("password", test("AUTH", null, "OK"));
+client.GETSET(["getset key", "new getset val"], require_string("getset val", name));
+client.get(["getset key"], last(name, require_string("new getset val", name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.<span class="apidocCodeKeywordSpan">MGET</span>("hello", "nonex", "what", test("MGET"
-;, null, [ "world", null, "where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
-redis.GETBIT("hello", 21, test("GETBIT", null, 1));
+tests.MGET = function () {
+var name = "MGET";
+client.mset(["mget keys 1", "mget val 1", "mget keys 2", "mget val 2", "mget keys 3
+", "mget val 3"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">MGET</span>("mget keys 1", "mget keys 2", "mget keys 3",
+function (err, results) {
+    assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+    assert.strictEqual(3, results.length, name);
+    assert.strictEqual("mget val 1", results[0].toString(), name);
+    assert.strictEqual("mget val 2", results[1].toString(), name);
+    assert.strictEqual("mget val 3", results[2].toString(), name);
+});
+client.MGET(["mget keys 1", "mget keys 2", "mget keys 3"], function (err, results) {
 ...</pre></li>
     </ul>
 
@@ -11852,20 +11815,22 @@ redis.GETBIT("hello", 21, test("GETBIT", null, 1));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.<span class="apidocCodeKeywordSpan">MSET</span>("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
-redis.TTL("nonx", test("PSETEX expire", null, 1));
-redis.GETSET("nonx", "stay");
-redis.TTL("nonx", test("GETSET persists", null, -1));
-redis.DEL("nonx");
+tests.SCAN = function(){
+var name = 'SCAN';
+var resultArray = [];
+
+client.flushdb();
+client.<span class="apidocCodeKeywordSpan">MSET</span>(["scan test 1", "test val 1", "scan test 2", &amp;#
+x22;test val 2", "some other thing", "whoa", "another thing", "hello", "scan test
+ 3", "scan test val 3"], require_string("OK", name));
+// Get all keys
+function runAllScan(cursor, pattern){
+    client.SCAN([cursor], function(err, results){
+        assert(!err);
+        var cursor = results[0];
+        resultArray = resultArray.concat(results[1]);
 ...</pre></li>
     </ul>
 
@@ -11913,22 +11878,23 @@ redis.DEL("nonx");
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.ttl(["setex key"], last(name, require_number_pos(name)));
+    client.SETEX(["setex key", "100", undefined], require_error(name));
+};
 
-redis.EXPIRE("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.TTL("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.<span class="apidocCodeKeywordSpan">MSETNX</span>("somekey", "someval", "hello", "non-world
-", test("MSETNX is safe", null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+tests.MSETNX = function () {
+    var name = "MSETNX";
+    client.mset(["mset1", "val1", "mset2", "val2", "mset3", "val3"],
+require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">MSETNX</span>(["mset3", "val3", "mset4", "val4
+"], require_number(0, name));
+    client.del(["mset3"], require_number(1, name));
+    client.MSETNX(["mset3", "val3", "mset4", "val4"], require_number(1, name));
+    client.exists(["mset3"], require_number(1, name));
+    client.exists(["mset4"], last(name, require_number(1, name)));
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
+tests.HGETALL = function () {
 ...</pre></li>
     </ul>
 
@@ -13026,7 +12992,24 @@ ord.push('pun');
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        next(name);
+    });
+};
+
+tests.RANDOMKEY = function () {
+    var name = "RANDOMKEY";
+    client.mset(["test keys 1", "test val 1", "test keys 2", "test val 2"], require_string
+("OK", name));
+    client.<span class="apidocCodeKeywordSpan">RANDOMKEY</span>([], function (err, results) {
+        assert.strictEqual(null, err, name + " result sent back unexpected error: " + err);
+        assert.strictEqual(true, /\w+/.test(results), name);
+        next(name);
+    });
+};
+
+tests.RENAME = function () {
+...</pre></li>
     </ul>
 
 
@@ -13165,25 +13148,22 @@ ord.push('pun');
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    next(name);
+});
+};
 
-redis.KEYS("*z?et*", test("KEYS with ? and *", null, [ "myzset", "zset1", "zset2"
-; ]));
-redis.KEYS("my[sz]*et", test("KEYS with [] and *", null, [ "myset", "myzset" ]));
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
+tests.RENAME = function () {
+var name = "RENAME";
+client.set(['foo', 'bar'], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">RENAME</span>(["foo", "new foo"], require_string("OK",
+name));
+client.exists(["foo"], require_number(0, name));
+client.exists(["new foo"], last(name, require_number(1, name)));
+};
 
-redis.EXPIRE("out", 60);
-redis.<span class="apidocCodeKeywordSpan">RENAME</span>("out", "outandabout", test("RENAME", null,
-OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
-redis.TTL("outandabout", test("RENAME / ZADD / TTL", null, 60));
-redis.EXISTS("out", test("EXISTS no", null, 0));
-redis.EXISTS("outandabout", test("EXISTS yes", null, 1));
-
-redis.ZADD("lexi", 1, "AAA", 1, "BBB", 1, "ZZZ", 1, "XXX", 1, "YYY",
-2, "FFF");
-redis.ZRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "AAA", "BBB", &amp;#
-x22;XXX", "YYY", "ZZZ", "FFF" ]));
+tests.RENAMENX = function () {
+var name = "RENAMENX";
+client.set(['foo', 'bar'], require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -13230,7 +13210,23 @@ x22;XXX", "YYY", "ZZZ", "FFF" ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["new foo"], last(name, require_number(1, name)));
+};
+
+tests.RENAMENX = function () {
+    var name = "RENAMENX";
+    client.set(['foo', 'bar'], require_string("OK", name));
+    client.set(['foo2', 'bar2'], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">RENAMENX</span>(["foo", "foo2"], require_number(0, name));
+    client.exists(["foo"], require_number(1, name));
+    client.exists(["foo2"], require_number(1, name));
+    client.del(["foo2"], require_number(1, name));
+    client.RENAMENX(["foo", "foo2"], require_number(1, name));
+    client.exists(["foo"], require_number(0, name));
+    client.exists(["foo2"], last(name, require_number(1, name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -13712,23 +13708,21 @@ redis.LINDEX("list3", -4, test("LINDEX negno", null, null));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.BITCOUNT("bitCountKey", 0, -1, test("BITCOUNT using explicit range", null, 26));
-redis.BITCOUNT("bitCountKey", 0, 0, test("BITCOUNT of first character", null, 4));
-redis.BITCOUNT("bitCountKey", -1, -1, test("BITCOUNT of last character", null, 4));
-redis.BITCOUNT("bitCountKey", 0, 3, test("BITCOUNT of substring", null, 19));
 
-// Sets.
+// Set tests were adapted from Brian Hammond's redis-node-client.js, which has a comprehensive test suite
 
-redis.<span class="apidocCodeKeywordSpan">SADD</span>("hello", "kuku", "buku", test("SADD typerror
-", BAD_TYPE, null));
-redis.SADD("myset", [ "ala", "bala" ], test("SADD multiarg", null, 2));
-redis.SADD("myset", "niza", "bala", test("SADD delta", null, 1));
-redis.SCARD("hello", test("SCARD typerror", BAD_TYPE, null));
-redis.SCARD("myset", test("SCARD", null, 3));
-redis.SADD("set2", 1, 2, 3, 4, 5);
-redis.SADD("set3", "xxx", "zzz", "yyy");
-redis.SUNIONSTORE("output", [ "nonex1", "myset", "set2", "set3", "nonex2&amp;#
-x22; ], test("SUNIONSTORE", null, 11));
+tests.SADD = function () {
+var name = "SADD";
+
+client.del('set0');
+client.<span class="apidocCodeKeywordSpan">SADD</span>('set0', 'member0', require_number(1, name));
+client.sadd('set0', 'member0', last(name, require_number(0, name)));
+};
+
+tests.SADD2 = function () {
+var name = "SADD2";
+
+client.del("set0");
 ...</pre></li>
     </ul>
 
@@ -13838,26 +13832,23 @@ setTimeout(
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-(function () {
-var redis = fake.createClient();
+    var name = 'SCAN';
+    var resultArray = [];
 
-redis.SADD('myset', 'what', 'woo', 'woot', 'www');
-redis.ZADD('myzset', 1, 'what', 4, 'woo', 3, 'woot', 2, 'www');
-redis.HMSET('myhash', 'key1', 'val1', 'key2', 'val2');
+    client.flushdb();
+    client.MSET(["scan test 1", "test val 1", "scan test 2", "test val 2", "some other
+ thing", "whoa", "another thing", "hello", "scan test 3", "scan test val 3"
+;], require_string("OK", name));
+    // Get all keys
+    function runAllScan(cursor, pattern){
+        client.<span class="apidocCodeKeywordSpan">SCAN</span>([cursor], function(err, results){
+assert(!err);
+var cursor = results[0];
+resultArray = resultArray.concat(results[1]);
 
-redis.<span class="apidocCodeKeywordSpan">SCAN</span>(0, test('SCAN 0 all', null, ['0', ['myset', &amp;#
-x27;myzset', 'myhash']]));
-redis.SCAN(0, 'COUNT', 2, test('SCAN 0 COUNT 2', null, ['2', ['myset', 'myzset'
-;]]));
-redis.SCAN(2, 'COUNT', 2, test('SCAN COUNT 2 rest', null, ['0', ['myhash']]));
-redis.SCAN(0, 'MATCH', '*z*', test('SCAN MATCH 1', null, ['0', ['myzset']]));
-redis.SCAN(0, 'MATCH', 'none', test('SCAN MATCH none', null, ['0', []]));
-redis.SCAN(0, 'MATCH', '*set', 'COUNT', 1, test('SCAN MATCH COUNT', null, ['1', [&amp;#
-x27;myset']]));
-redis.SCAN(0, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT empty', null, ['
-1', []]));
-redis.SCAN(1, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT mid', null, ['2&amp;#
-x27;, ['myzset']]));
+if (Number(cursor) !== 0){
+    runAllScan(cursor, pattern);
+}
 ...</pre></li>
     </ul>
 
@@ -14206,21 +14197,21 @@ redis3.SET("A", "Hola!!!", function () {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-(function () {
-var redis  = fake.createClient("stuff"),
-    redis2 = fake.createClient("stuff");
+// tests handling of non-existent keys
+client.GET('this_key_shouldnt_exist', last(name, require_null(name)));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.SET = function () {
+var name = "SET";
+client.<span class="apidocCodeKeywordSpan">SET</span>(["set key", "set val"], require_string("OK",
+name));
+client.get(["set key"], last(name, require_string("set val", name)));
+client.SET(["set key", undefined], require_error(name));
+};
 
-redis.<span class="apidocCodeKeywordSpan">SET</span>("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
+tests.GETSET = function () {
+var name = "GETSET";
+client.set(["getset key", "getset val"], require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -14330,23 +14321,22 @@ redis.STRLEN("hello", test("STRLEN", null, 4));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+client.exists(["setnx key"], require_number(0, name));
+client.SETNX(["setnx key", "new setnx value"], require_number(1, name));
+client.exists(["setnx key"], last(name, require_number(1, name)));
+};
 
-redis.<span class="apidocCodeKeywordSpan">SETEX</span>("nonx", 0, "hello", test("SETEX fail", BAD_SETEX
-, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.MSET("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
+tests.SETEX = function () {
+var name = "SETEX";
+client.<span class="apidocCodeKeywordSpan">SETEX</span>(["setex key", "100", "setex val"], require_string
+("OK", name));
+client.exists(["setex key"], require_number(1, name));
+client.ttl(["setex key"], last(name, require_number_pos(name)));
+client.SETEX(["setex key", "100", undefined], require_error(name));
+};
+
+tests.MSETNX = function () {
+var name = "MSETNX";
 ...</pre></li>
     </ul>
 
@@ -14394,23 +14384,22 @@ redis.GET("nonx", test("PSETEX set", null, "disappear"));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+        next(name);
+    });
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.<span class="apidocCodeKeywordSpan">SETNX</span>("nonx", "dont!", test("SETNX fail", null, 0
-));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.MSET("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
-redis.TTL("nonx", test("PSETEX expire", null, 1));
+tests.SETNX = function () {
+    var name = "SETNX";
+    client.set(["setnx key", "setnx value"], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">SETNX</span>(["setnx key", "new setnx value"], require_number
+(0, name));
+    client.del(["setnx key"], require_number(1, name));
+    client.exists(["setnx key"], require_number(0, name));
+    client.SETNX(["setnx key", "new setnx value"], require_number(1, name));
+    client.exists(["setnx key"], last(name, require_number(1, name)));
+};
+
+tests.SETEX = function () {
 ...</pre></li>
     </ul>
 
@@ -15155,20 +15144,22 @@ var expected = members
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+};
+
+
+tests.SREM2 = function () {
+var name = "SREM2";
+client.del("set0");
+client.sadd("set0", ["member0", "member1", "member2"], require_number(3, name));
+client.<span class="apidocCodeKeywordSpan">SREM</span>("set0", ["member1", "member2"], require_number
+(2, name));
+client.smembers("set0", function (err, res) {
+    assert.strictEqual(res.length, 1);
+    assert.ok(~res.indexOf("member0"));
 });
-
-sub2.on('punsubscribe', function (pattern) {
-    pun(null, pattern);
-
-    ord.push('pun');
-
-    sub2.<span class="apidocCodeKeywordSpan">SREM</span>('testset', 'testmem', function (err, data) {
-        ord.push(data);
-    });
-
-    sub2.PUBLISH('hello', 'world', test('PUB4 ignored', null, 0));
-    sub2.PUBLISH('my.ch', 'omega', test('PUB5 unsubed', null, 2));
-});
+client.sadd("set0", ["member3", "member4", "member5"], require_number(3, name));
+client.srem("set0", ["member0", "member6"], require_number(1, name));
+client.smembers("set0", function (err, res) {
 ...</pre></li>
     </ul>
 
@@ -15767,22 +15758,21 @@ redis.SMEMBERS("output", test("SMEMBERS", null, [ "1", "2", "5", "bala"
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.GET("hi", test("SETRANGE", null, "Hello World"));
-redis.GETRANGE("hi", -5, -1, test("GETRANGE negneg", null, "World"));
-redis.SETRANGE("hi", 6, "Redis", test("SETRANGE offset", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello Redis"));
+};
 
-redis.EXPIRE("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.<span class="apidocCodeKeywordSpan">TTL</span>("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
+tests.TTL = function () {
+var name = "TTL";
+client.set(["ttl key", "ttl val"], require_string("OK", name));
+client.expire(["ttl key", "100"], require_number_pos(name));
+setTimeout(function () {
+    client.<span class="apidocCodeKeywordSpan">TTL</span>(["ttl key"], last(name, require_number_pos(0, name)));
+}, 500);
+};
+
+tests.OPTIONAL_CALLBACK = function () {
+var name = "OPTIONAL_CALLBACK";
+client.del("op_cb1");
+client.set("op_cb1", "x");
 ...</pre></li>
     </ul>
 
@@ -15830,22 +15820,20 @@ redis.INCR("hello", test("INCR upset", BAD_INT, null));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.SISMEMBER("output", "bala", test("SISMEMBER yes", null, 1));
-redis.SISMEMBER("output", "what", test("SISMEMBER no", null, 0));
-redis.SISMEMBER("nonex", "what", test("SISMEMBER nonex", null, 0));
-redis.SISMEMBER("hello", "what", test("SISMEMBER bad", BAD_TYPE, null));
+    var name = "TYPE";
+    client.set(["string key", "should be a string"], require_string("OK", name));
+    client.rpush(["list key", "should be a list"], require_number_pos(name));
+    client.sadd(["set key", "should be a set"], require_number_any(name));
+    client.zadd(["zset key", "10.0", "should be a zset"], require_number_any(name));
+    client.hset(["hash key", "hashtest", "should be a hash"], require_number_any(0, name));
 
-redis.SADD("otherset", "whatever");
-redis.SINTERSTORE("nothing", "otherset", "output", test("SINTERSTORE empty out", null, 0
-));
-redis.<span class="apidocCodeKeywordSpan">TYPE</span>("nothing", test("SINTERSTORE empty out / TYPE", null, &amp;#
-x22;none"));
-
-redis.DEL("set3");
-redis.SPOP("set3", test("SPOP nothing", null, null));
-redis.SINTER("output", function (err, members) {
-    redis.SPOP("output", function (err, member) {
-        member = member ? member.toString() : "!?@#?!@?#";
+    client.<span class="apidocCodeKeywordSpan">TYPE</span>(["string key"], require_string("string", name));
+    client.TYPE(["list key"], require_string("list", name));
+    client.TYPE(["set key"], require_string("set", name));
+    client.TYPE(["zset key"], require_string("zset", name));
+    client.TYPE("not here yet", require_string("none", name));
+    client.TYPE(["hash key"], last(name, require_string("hash", name)));
+};
 ...</pre></li>
     </ul>
 
@@ -17512,7 +17500,23 @@ redis.ZUNIONSTORE(
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+// TODO - need a better way to test auth, maybe auto-config a local Redis server or something.
+// Yes, this is the real password.  Please be nice, thanks.
+tests.auth = function () {
+var name = "AUTH", client4, ready_count = 0;
+
+client4 = redis.createClient(9006, "filefish.redistogo.com");
+client4.<span class="apidocCodeKeywordSpan">auth</span>("664b1b6aaf134e1ec281945a8de702a9", function (err, res) {
+    assert.strictEqual(null, err, name);
+    assert.strictEqual("OK", res.toString(), name);
+});
+
+// test auth, then kill the connection so it'll auto-reconnect and auto-re-auth
+client4.on("ready", function () {
+    ready_count++;
+...</pre></li>
     </ul>
 
 
@@ -17989,7 +17993,23 @@ redis3.BRPOPLPUSH("step-1", "step-2", 0, test("BRPOPLPUSH step 1", null, ""));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    var lines = result.toString().split('\n').slice(0, -1);
+    assert.strictEqual(lines.length, 4);
+    assert(lines.every(function(line) {
+        return line.match(/^addr=/);
+    }));
+}
+
+bclient.<span class="apidocCodeKeywordSpan">client</span>("list", function(err, result) {
+    console.log(result.toString());
+    checkResult(result);
+    client.multi().client("list").exec(function(err, result) {
+        console.log(result.toString());
+        checkResult(result);
+        client.multi([['client', 'list']]).exec(function(err, result) {
+            console.log(result.toString());
+...</pre></li>
     </ul>
 
 
@@ -18143,7 +18163,24 @@ if (Array.isArray(args)) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        }, 50);
+    });
+});
+};
+
+tests.SLOWLOG = function () {
+var name = "SLOWLOG";
+client.<span class="apidocCodeKeywordSpan">config</span>("set", "slowlog-log-slower-than", 0, require_string
+("OK", name));
+client.slowlog("reset", require_string("OK", name));
+client.set("foo", "bar", require_string("OK", name));
+client.get("foo", require_string("bar", name));
+client.slowlog("get", function (err, res) {
+    assert.equal(res.length, 3, name);
+    assert.equal(res[0][3].length, 2, name);
+    assert.deepEqual(res[1][3], ["set", "foo", "bar"], name);
+...</pre></li>
     </ul>
 
 
@@ -18190,22 +18227,22 @@ if (Array.isArray(args)) {
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+client.FLUSHDB(require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">dbsize</span>(last(name, require_number(0, name)));
+};
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .<span class="apidocCodeKeywordSpan">dbsize</span>(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
 
-
-// Pub / Sub.
-
-(function () {
+if (bclient.reply_parser.name == "hiredis") {
 ...</pre></li>
     </ul>
 
@@ -18390,7 +18427,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.sadd("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
+
+// make sure empty mb reply works
+client.<span class="apidocCodeKeywordSpan">del</span>("some missing set");
+client.smembers("some missing set", function (err, reply) {
+    // make sure empty mb reply works
+    assert.strictEqual(true, is_empty_array(reply), name);
+});
+
+// test nested multi-bulk replies with empty mb elements.
+client.multi([
+...</pre></li>
     </ul>
 
 
@@ -18574,7 +18627,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+if (!server_version_at_least(client, [2, 5, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.5.x");
+    return next(name);
+}
+
+// test {EVAL - Lua integer -&gt; Redis protocol type conversion}
+client.<span class="apidocCodeKeywordSpan">eval</span>("return 100.5", 0, require_number(100, name));
+// test {EVAL - Lua string -&gt; Redis protocol type conversion}
+client.eval("return 'hello world'", 0, require_string("hello world", name));
+// test {EVAL - Lua true boolean -&gt; Redis protocol type conversion}
+client.eval("return true", 0, require_number(1, name));
+// test {EVAL - Lua false boolean -&gt; Redis protocol type conversion}
+client.eval("return false", 0, require_null(name));
+// test {EVAL - Lua status code reply -&gt; Redis protocol type conversion}
+...</pre></li>
     </ul>
 
 
@@ -18620,7 +18689,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.set("sha test", "eval get sha test", function (err, res) {
+    if (err) throw err;
+    // test {EVAL - is Lua able to call Redis API?}
+    client.eval(source, 0, function (err, res) {
+        require_string("eval get sha test", name)(err, res);
+        // test {EVALSHA - Can we call a SHA1 if already defined?}
+        client.<span class="apidocCodeKeywordSpan">evalsha</span>(sha, 0, require_string("eval get sha test", name));
+        // test {EVALSHA - Do we get an error on non defined SHA1?}
+        client.evalsha("ffffffffffffffffffffffffffffffffffffffff", 0, require_error(name));
+    });
+});
+
+// test {EVAL - Redis integer -&gt; Lua type conversion}
+client.set("incr key", 0, function (err, reply) {
+...</pre></li>
     </ul>
 
 
@@ -18683,23 +18768,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return !self._client.should_buffer;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "v2
-" ]));
-redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", "
-;v1", "v2" ]));
-redis.HGETALL("h", function (err, data) {
-    redis.multi()
-        .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-            .<span class="apidocCodeKeywordSpan">exec</span>(test("HGETALL multi/exec replies sugar", err, [ data ]));
 
-    redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-    redis.TYPE("h", test("TYPE hash", null, "hash"));
-    redis.HDEL("h", "field-4", "f1", "f2");
-    redis.TYPE("h", test("TYPE none", null, "none"));
-});
+    // Provoke an error at queue time
+    multi1 = client.multi();
+    multi1.mset("multifoo", "10", "multibar", "20", require_string("OK", name));
+    multi1.set("foo2", require_error(name));
+    multi1.incr("multifoo", require_number(11, name));
+    multi1.incr("multibar", require_number(21, name));
+    multi1.<span class="apidocCodeKeywordSpan">exec</span>(function () {
+require_error(name);
+
+// Redis 2.6.5+ will abort transactions with errors
+// see: http://redis.io/topics/transactions
+var multibar_expected = 22;
+var multifoo_expected = 12;
+if (server_version_at_least(client, [2, 6, 5])) {
 ...</pre></li>
     </ul>
 
@@ -18871,7 +18954,24 @@ redis.HGETALL("h", function (err, data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.DEL = function () {
+var name = "DEL";
+client.DEL("delkey", require_number_any(name));
+client.set("delkey", "delvalue", require_string("OK", name));
+client.DEL("delkey", require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">exists</span>("delkey", require_number(0, name));
+client.DEL("delkey", require_number(0, name));
+client.mset("delkey", "delvalue", "delkey2", "delvalue2", require_string("OK",
+name));
+client.DEL("delkey", "delkey2", last(name, require_number(2, name)));
+};
+
+tests.TYPE = function () {
+var name = "TYPE";
+...</pre></li>
     </ul>
 
 
@@ -18917,7 +19017,23 @@ redis.HGETALL("h", function (err, data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["expiry key"], last(name, require_number(0, name)));
+}, 2000);
+};
+
+tests.TTL = function () {
+var name = "TTL";
+client.set(["ttl key", "ttl val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">expire</span>(["ttl key", "100"], require_number_pos(name));
+setTimeout(function () {
+    client.TTL(["ttl key"], last(name, require_number_pos(0, name)));
+}, 500);
+};
+
+tests.OPTIONAL_CALLBACK = function () {
+var name = "OPTIONAL_CALLBACK";
+...</pre></li>
     </ul>
 
 
@@ -19055,7 +19171,25 @@ redis.HGETALL("h", function (err, data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+});
+};
+
+tests.SCAN = function(){
+var name = 'SCAN';
+var resultArray = [];
+
+client.<span class="apidocCodeKeywordSpan">flushdb</span>();
+client.MSET(["scan test 1", "test val 1", "scan test 2", "test val 2", "some other
+thing", "whoa", "another thing", "hello", "scan test 3", "scan test val 3"
+;], require_string("OK", name));
+// Get all keys
+function runAllScan(cursor, pattern){
+    client.SCAN([cursor], function(err, results){
+        assert(!err);
+        var cursor = results[0];
+        resultArray = resultArray.concat(results[1]);
+...</pre></li>
     </ul>
 
 
@@ -19378,21 +19512,21 @@ redis.HGETALL("h", function (err, data) {
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    .BLPOP("nonex", 0, test("BLPOP in transaction", null, null))
-    .LPUSH("step-1", "", test("LPUSH empty string", null, 1))
-        .exec ();
 
-redis1.BRPOP("step-3", 0, test("BRPOPLPUSH step 3, chain worked.", null, [ "step-3", "" ]));
+var originalHandler = client.listeners("error").pop();
+client.removeAllListeners("error");
+client.once("error", function (err) {
+    recordedError = err;
+});
 
-redis1.MULTI()
-    .<span class="apidocCodeKeywordSpan">get</span>("hello", test("GET transblocktrans", null, "redis&amp;#
-x22;))
-    .blpop("nonex", 0, test("BLPOP in postblock transaction", null, null))
-    .publish("hello", "world", test("PUBLISH in postblock transaction", null, 1))
-        .exec ();
+client.<span class="apidocCodeKeywordSpan">get</span>("no_such_key", function (err, reply) {
+    throw toThrow;
+});
 
-redis2.BRPOPLPUSH("step-2", "step-3", 0, test("BRPOPLPUSH step 2", null, ""));
-redis2.SET("hello", "redis");
+setTimeout(function () {
+    client.listeners("error").push(originalHandler);
+    assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+    next(name);
 ...</pre></li>
     </ul>
 
@@ -19715,7 +19849,23 @@ redis2.SET("hello", "redis");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+    client.multi()
+.hmset("multihash", "a", "foo", "b", 1)
+.hmset("multihash", {
+    extra: "fancy",
+    things: "here"
+})
+.<span class="apidocCodeKeywordSpan">hgetall</span>("multihash")
+.exec(function (err, replies) {
+    assert.strictEqual(null, err);
+    assert.equal("OK", replies[0]);
+    assert.equal(Object.keys(replies[2]).length, 4);
+    assert.equal("foo", replies[2].a);
+    assert.equal("1", replies[2].b);
+    assert.equal("fancy", replies[2].extra);
+...</pre></li>
     </ul>
 
 
@@ -19945,7 +20095,24 @@ redis2.SET("hello", "redis");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    assert.strictEqual(null, err, name);
+    assert.strictEqual(true, Buffer.isBuffer(reply), name);
+    assert.strictEqual("&lt;Buffer 73 74 72 69 6e 67 20 76 61 6c 75 65&gt;", reply.inspect(), name);
+});
+
+detect_client.hmset("hash key 2", "key 1", "val 1", "key 2", "val 2");
+// array of Buffers or Strings
+detect_client.<span class="apidocCodeKeywordSpan">hmget</span>("hash key 2", "key 1", "key 2", function
+ (err, reply) {
+    assert.strictEqual(null, err, name);
+    assert.strictEqual(true, Array.isArray(reply), name);
+    assert.strictEqual(2, reply.length, name);
+    assert.strictEqual("val 1", reply[0], name);
+    assert.strictEqual("val 2", reply[1], name);
+});
+detect_client.hmget(new Buffer("hash key 2"), "key 1", "key 2", function (err, reply) {
+...</pre></li>
     </ul>
 
 
@@ -19994,7 +20161,23 @@ redis2.SET("hello", "redis");
     this.queue.push(['hmset', arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+});
+};
+
+tests.MULTI_6 = function () {
+var name = "MULTI_6";
+
+client.multi()
+    .<span class="apidocCodeKeywordSpan">hmset</span>("multihash", "a", "foo", "b", 1)
+    .hmset("multihash", {
+        extra: "fancy",
+        things: "here"
+    })
+    .hgetall("multihash")
+    .exec(function (err, replies) {
+        assert.strictEqual(null, err);
+...</pre></li>
     </ul>
 
 
@@ -20086,7 +20269,22 @@ redis2.SET("hello", "redis");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    assert.strictEqual(null, reply[1], name);
+    next(name);
+});
+};
+
+tests.HINCRBY = function () {
+var name = "HINCRBY";
+client.<span class="apidocCodeKeywordSpan">hset</span>("hash incr", "value", 10, require_number(1, name));
+client.HINCRBY("hash incr", "value", 1, require_number(11, name));
+client.HINCRBY("hash incr", "value 2", 1, last(name, require_number(1, name)));
+};
+
+tests.SUBSCRIBE = function () {
+var client1 = client, msg_count = 0, name = "SUBSCRIBE";
+...</pre></li>
     </ul>
 
 
@@ -20270,7 +20468,23 @@ redis2.SET("hello", "redis");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        return next(name);
+    }
+
+    // Test incr with the maximum JavaScript number value. Since we are
+    // returning buffers we should get back one more as a Buffer.
+    bclient.set("seq", "9007199254740992", function (err, result) {
+        assert.strictEqual(result.toString(), "OK");
+        bclient.<span class="apidocCodeKeywordSpan">incr</span>("seq", function (err, result) {
+            assert.strictEqual("9007199254740993", result.toString());
+            next(name);
+        });
+    });
+};
+
+tests.MULTI_1 = function () {
+...</pre></li>
     </ul>
 
 
@@ -20455,20 +20669,21 @@ redis2.SET("hello", "redis");
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        client.sadd("bigset", "member " + set_size);
-        set_size -= 1;
-    }
-
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .<span class="apidocCodeKeywordSpan">keys</span>("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+            extra: "fancy",
+            things: "here"
+        })
+        .hgetall("multihash")
+        .exec(function (err, replies) {
+            assert.strictEqual(null, err);
+            assert.equal("OK", replies[0]);
+            assert.equal(Object.<span class="apidocCodeKeywordSpan">keys</span>(replies[2]).length, 4);
+            assert.equal("foo", replies[2].a);
+            assert.equal("1", replies[2].b);
+            assert.equal("fancy", replies[2].extra);
+            assert.equal("here", replies[2].things);
+            next(name);
+        });
+};
 ...</pre></li>
     </ul>
 
@@ -20883,7 +21098,24 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.sort('x', 'by', 'w*', 'asc', 'get', 'o*', 'get', &amp;#
+x27;p*', 'store', 'bacon', function (err) {
+    if (err) {
+        assert.fail(err, name);
+    }
+});
+
+client.<span class="apidocCodeKeywordSpan">lrange</span>('bacon', 0, -1, function (err, values) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.deepEqual(buffers_to_strings(values), ['foo', 'bux', 'bar', 'tux', 'baz&amp;#
+x27;, 'lux', 'buz', 'qux'], name);
+    next(name);
+});
+...</pre></li>
     </ul>
 
 
@@ -21113,7 +21345,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.MULTI_4 = function () {
+var name = "MULTI_4";
+
+client.multi()
+    .mset('some', '10', 'keys', '20')
+    .incr('some')
+    .incr('keys')
+    .<span class="apidocCodeKeywordSpan">mget</span>('some', 'keys')
+    .exec(function (err, replies) {
+        assert.strictEqual(null, err);
+        assert.equal('OK', replies[0]);
+        assert.equal(11, replies[1]);
+        assert.equal(21, replies[2]);
+        assert.equal(11, replies[3][0].toString());
+        assert.equal(21, replies[3][1].toString());
+...</pre></li>
     </ul>
 
 
@@ -21251,7 +21499,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+if (!server_version_at_least(client, [2, 6, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.6.x");
+    return next(name);
+}
+
+monitor_client = redis.createClient();
+monitor_client.<span class="apidocCodeKeywordSpan">monitor</span>(function (err, res) {
+    client.mget("some", "keys", "foo", "bar");
+    client.set("json", JSON.stringify({
+        foo: "123",
+        bar: "sdflkdfsjk",
+        another: false
+    }));
+});
+...</pre></li>
     </ul>
 
 
@@ -21343,7 +21607,24 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+// Tests are run in the order they are defined, so FLUSHDB should always be first.
+
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">mset</span>("flush keys 1", "flush val 1", "flush keys 2"
+;, "flush val 2", require_string("OK", name));
+client.FLUSHDB(require_string("OK", name));
+client.dbsize(last(name, require_number(0, name)));
+};
+
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
+...</pre></li>
     </ul>
 
 
@@ -21436,25 +21717,20 @@ x22;m1", "m2" ], 2, 1 ]));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+});
+};
 
-    redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3"
-;, "field-4" ]));
-    redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-    redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-    redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "
-;v2" ]));
-    redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", &amp;#
-x22;v1", "v2" ]));
-    redis.HGETALL("h", function (err, data) {
-redis.<span class="apidocCodeKeywordSpan">multi</span>()
-    .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-        .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+tests.MULTI_1 = function () {
+var name = "MULTI_1", multi1, multi2;
 
-redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-redis.TYPE("h", test("TYPE hash", null, "hash"));
-redis.HDEL("h", "field-4", "f1", "f2");
-redis.TYPE("h", test("TYPE none", null, "none"));
+// Provoke an error at queue time
+multi1 = client.<span class="apidocCodeKeywordSpan">multi</span>();
+multi1.mset("multifoo", "10", "multibar", "20", require_string("OK", name));
+multi1.set("foo2", require_error(name));
+multi1.incr("multifoo", require_number(11, name));
+multi1.incr("multibar", require_number(21, name));
+multi1.exec(function () {
+    require_error(name);
 ...</pre></li>
     </ul>
 
@@ -22053,7 +22329,23 @@ redis.TYPE("h", test("TYPE none", null, "none"));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.PSUB_UNSUB_PMSG_SUB = function () {
+    var name = "PSUB_UNSUB_PMSG_SUB";
+    // test hangs on older versions of redis, so skip
+    if (!server_version_at_least(client, [2, 6, 11])) return next(name);
+
+    client3.<span class="apidocCodeKeywordSpan">psubscribe</span>('abc*');
+    client3.subscribe('xyz');
+    client3.unsubscribe('xyz');
+    client2.publish('abcd', 'something');
+    client3.subscribe('xyz', with_timeout(name, function (err, results) {
+        next(name);
+    }, 2000));
+};
+...</pre></li>
     </ul>
 
 
@@ -22192,22 +22484,20 @@ redis.TYPE("h", test("TYPE none", null, "none"));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        .exec ();
+        if (channel == name) {
+            assert.equal(data, "Some message");
+            throw toThrow;
+        }
+    });
+    client3.subscribe(name);
 
-redis1.BRPOP("step-3", 0, test("BRPOPLPUSH step 3, chain worked.", null, [ "step-3", "" ]));
-
-redis1.MULTI()
-    .get("hello", test("GET transblocktrans", null, "redis"))
-    .blpop("nonex", 0, test("BLPOP in postblock transaction", null, null))
-    .<span class="apidocCodeKeywordSpan">publish</span>("hello", "world", test("PUBLISH in postblock transaction
-", null, 1))
-        .exec ();
-
-redis2.BRPOPLPUSH("step-2", "step-3", 0, test("BRPOPLPUSH step 2", null, ""));
-redis2.SET("hello", "redis");
-
-redis3.BRPOPLPUSH("step-1", "step-2", 0, test("BRPOPLPUSH step 1", null, ""));
-redis3.SUBSCRIBE("hello");
+    client.<span class="apidocCodeKeywordSpan">publish</span>(name, "Some message");
+    setTimeout(function () {
+        client3.listeners("error").push(originalHandlers);
+        assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+        next(name);
+    }, 150);
+};
 ...</pre></li>
     </ul>
 
@@ -22300,7 +22590,23 @@ redis3.SUBSCRIBE("hello");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client3.unsubscribe(); // reply[1] will be null
+next(name);
+};
+
+tests.PUNSUB_EMPTY = function () {
+// test situation where punsubscribe reply[1] is null
+var name = "PUNSUB_EMPTY";
+client3.<span class="apidocCodeKeywordSpan">punsubscribe</span>(); // punsubscribe from all so can test null
+client3.punsubscribe(); // reply[1] will be null
+next(name);
+};
+
+/*MODIF
+tests.UNSUB_EMPTY_CB = function () {
+var name = "UNSUB_EMPTY_CB";
+...</pre></li>
     </ul>
 
 
@@ -22346,7 +22652,23 @@ redis3.SUBSCRIBE("hello");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+            assert.strictEqual(2, Object.keys(reply).length, name);
+            assert.strictEqual(true, Buffer.isBuffer(reply["key 1"]));
+            assert.strictEqual(true, Buffer.isBuffer(reply["key 2"]));
+            assert.strictEqual("&lt;Buffer 76 61 6c 20 31&gt;", reply["key 1"].inspect(), name);
+            assert.strictEqual("&lt;Buffer 76 61 6c 20 32&gt;", reply["key 2"].inspect(), name);
+        });
+
+        detect_client.<span class="apidocCodeKeywordSpan">quit</span>(function (err, res) {
+            next(name);
+        });
+    });
+};
+
+/*MODIF
+tests.socket_nodelay = function () {
+...</pre></li>
     </ul>
 
 
@@ -22898,7 +23220,24 @@ redis3.SUBSCRIBE("hello");
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        assert.strictEqual("bulk reply value", res[1], name);
+    });
+});
+
+// test {EVAL - Redis multi bulk -&gt; Lua type conversion}
+client.multi()
+    .del("mylist")
+    .<span class="apidocCodeKeywordSpan">rpush</span>("mylist", "a")
+    .rpush("mylist", "b")
+    .rpush("mylist", "c")
+    .exec(function (err, replies) {
+        if (err) throw err;
+        client.eval("local foo = redis.call('lrange','mylist',0,-1); return {type(foo),foo[1],foo[2],foo
+[3],# foo}", 0, function (err, res) {
+            assert.strictEqual(5, res.length, name);
+            assert.strictEqual("table", res[0], name);
+...</pre></li>
     </ul>
 
 
@@ -22991,20 +23330,21 @@ redis3.SUBSCRIBE("hello");
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-multi.SADD("fail-a", "woot", test("EXEC reply error", BAD_TYPE));
-multi.exec();
-} ());
+    next(name);
+});
+};*/
 
-(function () {
-var client = fake.createClient(), set_size = 1000;
+tests.MULTI_3 = function () {
+var name = "MULTI_3";
 
-client.<span class="apidocCodeKeywordSpan">sadd</span>("bigset", "a member");
-client.sadd("bigset", "another member");
+client.<span class="apidocCodeKeywordSpan">sadd</span>("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
 
-while (set_size &gt; 0) {
-    client.sadd("bigset", "member " + set_size);
-    set_size -= 1;
-}
+// make sure empty mb reply works
+client.del("some missing set");
+client.smembers("some missing set", function (err, reply) {
 ...</pre></li>
     </ul>
 
@@ -23145,21 +23485,20 @@ while (set_size &gt; 0) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-    while (set_size &gt; 0) {
-        client.sadd("bigset", "member " + set_size);
-        set_size -= 1;
-    }
+    // test nested multi-bulk replies with empty mb elements.
+    client.multi([
+        ["smembers", "some set"],
+        ["del", "some set"],
+        ["smembers", "some set"]
+    ])
+    .<span class="apidocCodeKeywordSpan">scard</span>("some set")
+    .exec(function (err, replies) {
+        assert.strictEqual(true, is_empty_array(replies[2]), name);
+        next(name);
+    });
+};
 
-    client.multi()
-        .<span class="apidocCodeKeywordSpan">scard</span>("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+tests.MULTI_4 = function () {
 ...</pre></li>
     </ul>
 
@@ -23206,7 +23545,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    commandSha = crypto.createHash('sha1').update(command).digest('hex');
+
+if (!server_version_at_least(client, [2, 6, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.6.x");
+    return next(name);
+}
+
+bclient.<span class="apidocCodeKeywordSpan">script</span>("load", command, function(err, result) {
+    assert.strictEqual(result.toString(), commandSha);
+    client.multi().script("load", command).exec(function(err, result) {
+        assert.strictEqual(result[0].toString(), commandSha);
+        client.multi([['script', 'load', command]]).exec(function(err, result) {
+            assert.strictEqual(result[0].toString(), commandSha);
+            next(name);
+        });
+...</pre></li>
     </ul>
 
 
@@ -23252,7 +23607,24 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('foo', 'c', require_number(1, name));
+
+client.sadd('bar', 'c', require_number(1, name));
+
+client.sadd('baz', 'a', require_number(1, name));
+client.sadd('baz', 'd', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sdiff</span>('foo', 'bar', 'baz', function (err, values
+) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    values.sort();
+    assert.equal(values.length, 2, name);
+    assert.equal(values[0], 'b', name);
+    assert.equal(values[1], 'x', name);
+...</pre></li>
     </ul>
 
 
@@ -23298,7 +23670,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('bar', 'c', require_number(1, name));
+
+client.sadd('baz', 'a', require_number(1, name));
+client.sadd('baz', 'd', require_number(1, name));
+
+// NB: SDIFFSTORE returns the number of elements in the dstkey
+
+client.<span class="apidocCodeKeywordSpan">sdiffstore</span>('quux', 'foo', 'bar', 'baz',
+require_number(2, name));
+
+client.smembers('quux', function (err, values) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    var members = buffers_to_strings(values).sort();
+...</pre></li>
     </ul>
 
 
@@ -23344,7 +23732,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    run_next_test();
+};
+
+// Tests are run in the order they are defined, so FLUSHDB should always be first.
+
+tests.FLUSHDB = function () {
+    var name = "FLUSHDB";
+    client.<span class="apidocCodeKeywordSpan">select</span>(test_db_num, require_string("OK", name));
+    client2.select(test_db_num, require_string("OK", name));
+    client3.select(test_db_num, require_string("OK", name));
+    client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+    client.FLUSHDB(require_string("OK", name));
+    client.dbsize(last(name, require_number(0, name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -23390,7 +23794,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    if (bclient.reply_parser.name == "hiredis") {
+        console.log("Skipping INCR buffer test with hiredis");
+        return next(name);
+    }
+
+    // Test incr with the maximum JavaScript number value. Since we are
+    // returning buffers we should get back one more as a Buffer.
+    bclient.<span class="apidocCodeKeywordSpan">set</span>("seq", "9007199254740992", function (err, result) {
+        assert.strictEqual(result.toString(), "OK");
+        bclient.incr("seq", function (err, result) {
+            assert.strictEqual("9007199254740993", result.toString());
+            next(name);
+        });
+    });
+};
+...</pre></li>
     </ul>
 
 
@@ -23666,7 +24086,22 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sinter</span>('sa', 'sb', function (err, intersection) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.equal(intersection.length, 2, name);
+    assert.deepEqual(buffers_to_strings(intersection).sort(), [ 'b', 'c' ], name);
+});
+...</pre></li>
     </ul>
 
 
@@ -23712,7 +24147,24 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sinterstore</span>('foo', 'sa', 'sb', 'sc', require_number
+(1, name));
+
+client.smembers('foo', function (err, members) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.deepEqual(buffers_to_strings(members), [ 'c' ], name);
+    next(name);
+...</pre></li>
     </ul>
 
 
@@ -23758,7 +24210,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.SISMEMBER = function () {
+var name = "SISMEMBER";
+
+client.del('set0');
+client.sadd('set0', 'member0', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">sismember</span>('set0', 'member0', require_number(1, name));
+client.sismember('set0', 'member1', last(name, require_number(0, name)));
+};
+
+tests.SCARD = function () {
+var name = "SCARD";
+
+client.del('set0');
+...</pre></li>
     </ul>
 
 
@@ -23850,7 +24318,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    });
+});
+};
+
+tests.SLOWLOG = function () {
+var name = "SLOWLOG";
+client.config("set", "slowlog-log-slower-than", 0, require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">slowlog</span>("reset", require_string("OK", name));
+client.set("foo", "bar", require_string("OK", name));
+client.get("foo", require_string("bar", name));
+client.slowlog("get", function (err, res) {
+    assert.equal(res.length, 3, name);
+    assert.equal(res[0][3].length, 2, name);
+    assert.deepEqual(res[1][3], ["set", "foo", "bar"], name);
+    assert.deepEqual(res[2][3], ["slowlog", "reset"], name);
+...</pre></li>
     </ul>
 
 
@@ -23897,22 +24381,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        set_size -= 1;
-    }
+client.sadd("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .<span class="apidocCodeKeywordSpan">smembers</span>("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+// make sure empty mb reply works
+client.del("some missing set");
+client.<span class="apidocCodeKeywordSpan">smembers</span>("some missing set", function (err, reply) {
+    // make sure empty mb reply works
+    assert.strictEqual(true, is_empty_array(reply), name);
+});
 
-
-// Pub / Sub.
+// test nested multi-bulk replies with empty mb elements.
+client.multi([
+    ["smembers", "some set"],
 ...</pre></li>
     </ul>
 
@@ -23959,7 +24442,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.SMOVE = function () {
+var name = "SMOVE";
+
+client.del('foo');
+client.del('bar');
+
+client.sadd('foo', 'x', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">smove</span>('foo', 'bar', 'x', require_number(1, name));
+client.sismember('foo', 'x', require_number(0, name));
+client.sismember('bar', 'x', require_number(1, name));
+client.smove('foo', 'bar', 'x', last(name, require_number(0, name)));
+};
+
+tests.SINTER = function () {
+var name = "SINTER";
+...</pre></li>
     </ul>
 
 
@@ -24006,20 +24505,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-, TYPE: function (key) {
-  var K = this.getKey(null, key);
-  return K ? K.TYPE : NONE;
-}
+    return a.concat(b);
+}), require_string("OK", name));
 
-, KEYS: function (pat) {
-  var keys = this.getKeys().filter(pattern(pat));
-  keys.<span class="apidocCodeKeywordSpan">sort</span>();
-  return keys;
-}
+client.KEYS("multibulk:*", function(err, results) {
+    assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+    assert.deepEqual(keys_values.map(function(val) {
+        return val[0];
+    }).<span class="apidocCodeKeywordSpan">sort</span>(), results.sort(), name);
+});
 
-, SCAN: function () {
-  return this._scan(this.getKeys(), 1, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
-}
+next(name);
+};
+
+tests.MULTIBULK_ZERO_LENGTH = function () {
+var name = "MULTIBULK_ZERO_LENGTH";
 ...</pre></li>
     </ul>
 
@@ -24066,7 +24566,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.SPOP = function () {
+var name = "SPOP";
+
+client.del('zzz');
+client.sadd('zzz', 'member0', require_number(1, name));
+client.scard('zzz', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">spop</span>('zzz', function (err, value) {
+    if (err) {
+        assert.fail(err);
+    }
+    assert.equal(value, 'member0', name);
+});
+
+client.scard('zzz', last(name, require_number(0, name)));
+...</pre></li>
     </ul>
 
 
@@ -24159,21 +24675,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    }
+};
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .<span class="apidocCodeKeywordSpan">srem</span>("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+tests.SREM = function () {
+var name = "SREM";
+
+client.del('set0');
+client.sadd('set0', 'member0', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">srem</span>('set0', 'foobar', require_number(0, name));
+client.srem('set0', 'member0', require_number(1, name));
+client.scard('set0', last(name, require_number(0, name)));
+};
 
 
-// Pub / Sub.
+tests.SREM2 = function () {
+var name = "SREM2";
 ...</pre></li>
     </ul>
 
@@ -24312,7 +24828,23 @@ x22;m1", "m2" ], 2, 1 ]));
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client3.on("message", function (channel, data) {
+    console.log("incoming");
+    if (channel == name) {
+        assert.equal(data, "Some message");
+        throw toThrow;
+    }
+});
+client3.<span class="apidocCodeKeywordSpan">subscribe</span>(name);
+
+client.publish(name, "Some message");
+setTimeout(function () {
+    client3.listeners("error").push(originalHandlers);
+    assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+    next(name);
+}, 150);
+...</pre></li>
     </ul>
 
 
@@ -24420,7 +24952,25 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.sadd('sb', 'c', require_number(1, name));
+    client.sadd('sb', 'd', require_number(1, name));
+
+    client.sadd('sc', 'c', require_number(1, name));
+    client.sadd('sc', 'd', require_number(1, name));
+    client.sadd('sc', 'e', require_number(1, name));
+
+    client.<span class="apidocCodeKeywordSpan">sunion</span>('sa', 'sb', 'sc', function (err, union
+) {
+        if (err) {
+            assert.fail(err, name);
+        }
+        assert.deepEqual(buffers_to_strings(union).sort(), ['a', 'b', 'c', 'd', 'e&amp;#
+x27;], name);
+        next(name);
+    });
+};
+...</pre></li>
     </ul>
 
 
@@ -24466,7 +25016,24 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sunionstore</span>('foo', 'sa', 'sb', 'sc', function
+ (err, cardinality) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.equal(cardinality, 5, name);
+});
+
+client.smembers('foo', function (err, members) {
+...</pre></li>
     </ul>
 
 
@@ -24696,7 +25263,24 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.exists(["setnx key"], last(name, require_number(1, name)));
+};
+
+tests.SETEX = function () {
+var name = "SETEX";
+client.SETEX(["setex key", "100", "setex val"], require_string("OK", name));
+client.exists(["setex key"], require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">ttl</span>(["setex key"], last(name, require_number_pos(name)));
+client.SETEX(["setex key", "100", undefined], require_error(name));
+};
+
+tests.MSETNX = function () {
+var name = "MSETNX";
+client.mset(["mset1", "val1", "mset2", "val2", "mset3", "val3"], require_string
+("OK", name));
+client.MSETNX(["mset3", "val3", "mset4", "val4"], require_number(0, name));
+...</pre></li>
     </ul>
 
 
@@ -24834,7 +25418,23 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.set(name, "one");
+client.subscribe('ChannelV', function (err, res) {
+    client.stream.destroy();
+});
+
+client.on("reconnecting", function on_recon(params) {
+    client.on("ready", function on_connect() {
+        client.<span class="apidocCodeKeywordSpan">unsubscribe</span>('ChannelV', function (err, res) {
+            client.get(name, require_string("one", name));
+            client.removeListener("connect", on_connect);
+            client.removeListener("reconnecting", on_recon);
+            next(name);
+        });
+    });
+});
+...</pre></li>
     </ul>
 
 
@@ -24972,7 +25572,23 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.WATCH_MULTI = function () {
+    var name = 'WATCH_MULTI', multi;
+    if (!server_version_at_least(client, [2, 2, 0])) {
+        console.log("Skipping " + name + " for old Redis server version &lt; 2.2.x");
+        return next(name);
+    }
+
+    client.<span class="apidocCodeKeywordSpan">watch</span>(name);
+    client.incr(name);
+    multi = client.multi();
+    multi.incr(name);
+    multi.exec(last(name, require_null(name)));
+};
+
+tests.WATCH_TRANSACTION = function () {
+...</pre></li>
     </ul>
 
 
@@ -25018,7 +25634,24 @@ function unpackageBuffersAsStrings(data) {
     this.queue.push([command, arr, callback]);
     return this;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.TYPE = function () {
+var name = "TYPE";
+client.set(["string key", "should be a string"], require_string("OK", name));
+client.rpush(["list key", "should be a list"], require_number_pos(name));
+client.sadd(["set key", "should be a set"], require_number_any(name));
+client.<span class="apidocCodeKeywordSpan">zadd</span>(["zset key", "10.0", "should be a zset"], require_number_any
+(name));
+client.hset(["hash key", "hashtest", "should be a hash"], require_number_any(0, name));
+
+client.TYPE(["string key"], require_string("string", name));
+client.TYPE(["list key"], require_string("list", name));
+client.TYPE(["set key"], require_string("set", name));
+client.TYPE(["zset key"], require_string("zset", name));
+client.TYPE("not here yet", require_string("none", name));
+...</pre></li>
     </ul>
 
 
@@ -26606,21 +27239,21 @@ redis.BITCOUNT("bitCountKey", 0, 3, test("BITCOUNT of substring", null, 19));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.LLEN("lremlist", test("LLEN", null, 4));
-redis.LREM("lremlist", 0, "b", test("LREM 0", null, 4));
-redis.LLEN("lremlist", test("LLEN empty", null, 0));
+    });
+};
 
+tests.BLPOP = function () {
+    var name = "BLPOP";
 
-// Blocking list commands !
+    client.rpush("blocking list", "initial value", function (err, res) {
+client2.<span class="apidocCodeKeywordSpan">BLPOP</span>("blocking list", 0, function (err, res) {
+    assert.strictEqual("blocking list", res[0].toString());
+    assert.strictEqual("initial value", res[1].toString());
 
-redis.<span class="apidocCodeKeywordSpan">BLPOP</span>("BL-a", "BL-b", "BL-c", 0, test("BLPOP
-", null, [ "BL-a", "AAA" ]));
-
-redis2.LPUSH("BL-a", "AAA", test("LPUSH + BLPOP", null, 1));
-redis2.BRPOP("BL-b", "BL-c", 0, test("BRPOP", null, [ "BL-b", "BB3" ]));
-
-redis.RPUSH("BL-b", "BB1", "BB2", "BB3", test("RPUSH + BRPOP", null, 3));
-redis.BLPOP("BL-a", "BL-c", 0, test("BLPOP", null, [ "BL-c", "CC1" ]));
+    client.rpush("blocking list", "wait for this value");
+});
+client2.BLPOP("blocking list", 0, function (err, res) {
+    assert.strictEqual("blocking list", res[0].toString());
 ...</pre></li>
     </ul>
 
@@ -26973,7 +27606,23 @@ var redis1 = fake.createClient("weird"),
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["foo"], require_number(0, name));
+    client.exists(["foo2"], last(name, require_number(1, name)));
+};
+
+tests.DBSIZE = function () {
+    var name = "DBSIZE";
+    client.set(['foo', 'bar'], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">DBSIZE</span>([], last(name, require_number_pos("DBSIZE")));
+};
+
+tests.GET_1 = function () {
+    var name = "GET_1";
+    client.set(["get key", "get val"], require_string("OK", name));
+    client.GET(["get key"], last(name, require_string("get val", name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -27188,23 +27837,22 @@ redis.MSET("nonx", "do", test("MSET", null, OK));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.set("foo", "bar", require_string("OK", name));
+    client.EXISTS("foo", require_number(1, name));
+    client.EXISTS("foo2", last(name, require_number(0, name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.<span class="apidocCodeKeywordSpan">DEL</span>("hello", "nonex", "what", test("DEL count
-", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
-redis.GETBIT("hello", 21, test("GETBIT", null, 1));
-redis.SETBIT("hello", 7, 1, test("SETBIT", null, 0));
+tests.DEL = function () {
+    var name = "DEL";
+    client.<span class="apidocCodeKeywordSpan">DEL</span>("delkey", require_number_any(name));
+    client.set("delkey", "delvalue", require_string("OK", name));
+    client.DEL("delkey", require_number(1, name));
+    client.exists("delkey", require_number(0, name));
+    client.DEL("delkey", require_number(0, name));
+    client.mset("delkey", "delvalue", "delkey2", "delvalue2", require_string("OK"
+;, name));
+    client.DEL("delkey", "delkey2", last(name, require_number(2, name)));
+};
 ...</pre></li>
     </ul>
 
@@ -27538,24 +28186,21 @@ redis.BGREWRITEAOF(test("BGREWRITEAOF", null, "OK"));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
+});
+};*/
 
-redis.EXPIRE("out", 60);
-redis.RENAME("out", "outandabout", test("RENAME", null, OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
-redis.TTL("outandabout", test("RENAME / ZADD / TTL", null, 60));
-redis.<span class="apidocCodeKeywordSpan">EXISTS</span>("out", test("EXISTS no", null, 0));
-redis.EXISTS("outandabout", test("EXISTS yes", null, 1));
+tests.EXISTS = function () {
+var name = "EXISTS";
+client.del("foo", "foo2", require_number_any(name));
+client.set("foo", "bar", require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">EXISTS</span>("foo", require_number(1, name));
+client.EXISTS("foo2", last(name, require_number(0, name)));
+};
 
-redis.ZADD("lexi", 1, "AAA", 1, "BBB", 1, "ZZZ", 1, "XXX", 1, "YYY",
-2, "FFF");
-redis.ZRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "AAA", "BBB", &amp;#
-x22;XXX", "YYY", "ZZZ", "FFF" ]));
-redis.ZREVRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "FFF", "ZZZ"
-;, "YYY", "XXX", "BBB", "AAA" ]));
-
-redis.ZADD("otherzset", 100, "whatever");
+tests.DEL = function () {
+var name = "DEL";
+client.DEL("delkey", require_number_any(name));
+client.set("delkey", "delvalue", require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -27602,22 +28247,21 @@ redis.ZADD("otherzset", 100, "whatever");
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    next(name);
+});
+};
 
-redis.SETRANGE("hi", 0, "Hello World", test("SETRANGE upsert", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello World"));
-redis.GETRANGE("hi", -5, -1, test("GETRANGE negneg", null, "World"));
-redis.SETRANGE("hi", 6, "Redis", test("SETRANGE offset", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello Redis"));
+tests.EXPIRE = function () {
+var name = "EXPIRE";
+client.set(['expiry key', 'bar'], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">EXPIRE</span>(["expiry key", "1"], require_number_pos(name));
+setTimeout(function () {
+    client.exists(["expiry key"], last(name, require_number(0, name)));
+}, 2000);
+};
 
-redis.<span class="apidocCodeKeywordSpan">EXPIRE</span>("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.TTL("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
+tests.TTL = function () {
+var name = "TTL";
 ...</pre></li>
     </ul>
 
@@ -27753,7 +28397,23 @@ redis.GET("hello", test("GET expiring", null, "world"));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+client.<span class="apidocCodeKeywordSpan">FLUSHDB</span>(require_string("OK", name));
+client.dbsize(last(name, require_number(0, name)));
+};
+
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
+...</pre></li>
     </ul>
 
 
@@ -28069,21 +28729,22 @@ redis.GET("hello", test("GET expiring", null, "world"));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-(function () {
-var redis  = fake.createClient("stuff"),
-    redis2 = fake.createClient("stuff");
+client.set(['foo', 'bar'], require_string("OK", name));
+client.DBSIZE([], last(name, require_number_pos("DBSIZE")));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.GET_1 = function () {
+var name = "GET_1";
+client.set(["get key", "get val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">GET</span>(["get key"], last(name, require_string("get val", name
+)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.<span class="apidocCodeKeywordSpan">GET</span>("hello", test("SET / GET", null, "world"));
+tests.GET_2 = function() {
+var name = "GET_2";
 
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
+// tests handling of non-existent keys
+client.GET('this_key_shouldnt_exist', last(name, require_null(name)));
 ...</pre></li>
     </ul>
 
@@ -28254,23 +28915,23 @@ redis.PERSIST("hello");
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+client.get(["set key"], last(name, require_string("set val", name)));
+client.SET(["set key", undefined], require_error(name));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.GETSET = function () {
+var name = "GETSET";
+client.set(["getset key", "getset val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">GETSET</span>(["getset key", "new getset val"], require_string(&amp;#
+x22;getset val", name));
+client.get(["getset key"], last(name, require_string("new getset val", name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.<span class="apidocCodeKeywordSpan">GETSET</span>("what", "where", test("GETSET", null, "
-;who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
+tests.MGET = function () {
+var name = "MGET";
+client.mset(["mget keys 1", "mget val 1", "mget keys 2", "mget val 2", "mget keys 3
+", "mget val 3"], require_string("OK", name));
+client.MGET("mget keys 1", "mget keys 2", "mget keys 3", function (err, results) {
 ...</pre></li>
     </ul>
 
@@ -28442,21 +29103,21 @@ var out = this.HKEYS(key), self = this;
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-return this.structGet(HASH, key, field);
-  }
+    field1 = new Buffer("0123456789"),
+    value1 = new Buffer("abcdefghij"),
+    field2 = new Buffer(0),
+    value2 = new Buffer(0),
+    name = "HSET";
 
-, HGETALL: function (key) {
-var fields = this.HKEYS(key);
-var i, n = fields.length, out = [];
-for (i = 0; i &lt; n; i++)
-  out.push(fields[i], this.<span class="apidocCodeKeywordSpan">HGET</span>(key, fields[i]));
+client.HSET(key, field1, value1, require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">HGET</span>(key, field1, require_string(value1.toString(), name));
 
-return out;
-  }
+// Empty value
+client.HSET(key, field1, value2, require_number(0, name));
+client.HGET([key, field1], require_string("", name));
 
-, hIncrBy: function (parse, key, field, incr) {
-var K = this.getKey(HASH, key, true);
-if (K instanceof ERROR) return K;
+// Empty key, empty value
+client.HSET([key, field2, value1], require_number(1, name));
 ...</pre></li>
     </ul>
 
@@ -28503,25 +29164,22 @@ if (K instanceof ERROR) return K;
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.ZRANGE("out2", 0, -1, test("ZINTERSTORE with sets", null, ["v1", "v2"]));
-redis.ZREVRANGE("out2", 0, -1, "withscores", test("ZINTERSTORE with sets withscores", null, ["
-;v2", "3", "v1", "2"]));
-redis.ZUNIONSTORE("out3", 2, "newset", "newzset");
-redis.ZRANGE("out3", 0, -1, "withscores", test("ZUNIONSTORE with sets withscores", null, ["v1
-", "2", "v2", "3", "v3", "3"]));
+client.exists(["mset3"], require_number(1, name));
+client.exists(["mset4"], last(name, require_number(1, name)));
+};
 
-// Hashes.
-
-redis.<span class="apidocCodeKeywordSpan">HGETALL</span>("nonex", test("HGETALL nonex", null, null));
-
-redis.HMSET("h", { "f1" : "v1", "field-3" : "3" }, test("HMSET {} ok"
-;, null, OK));
-redis.HMSET("h", "f2", "v2", "field-4", 4, test("HMSET ... ok", null, OK));
-
-redis.HSETNX("h", "f1", "V1", test("HSETNX safe", null, 0));
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
+tests.HGETALL = function () {
+var name = "HGETALL";
+client.hmset(["hosts", "mjr", "1", "another", "23", "home", "1234
+"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">HGETALL</span>(["hosts"], function (err, obj) {
+    assert.strictEqual(null, err, name + " result sent back unexpected error: " + err);
+    assert.strictEqual(3, Object.keys(obj).length, name);
+    assert.strictEqual("1", obj.mjr.toString(), name);
+    assert.strictEqual("23", obj.another.toString(), name);
+    assert.strictEqual("1234", obj.home.toString(), name);
+    next(name);
+});
 ...</pre></li>
     </ul>
 
@@ -28568,28 +29226,21 @@ x22;f2": "v2", "field-3": "3", "field-4": "4" }));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
+    next(name);
+});
+};
 
-redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "hash
-", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", &amp;#
-x22;3", "field-4", "4" ] ]));
+tests.HINCRBY = function () {
+var name = "HINCRBY";
+client.hset("hash incr", "value", 10, require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">HINCRBY</span>("hash incr", "value", 1, require_number(11, name));
+client.HINCRBY("hash incr", "value 2", 1, last(name, require_number(1, name)));
+};
 
-redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3", &amp;#
-x22;field-4" ]));
-redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-redis.<span class="apidocCodeKeywordSpan">HINCRBY</span>("h", "field-3", 3, test("HINCRBYFLOAT success&amp;#
-x22;, null, 6));
-redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "v2
-" ]));
-redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", "
-;v1", "v2" ]));
-redis.HGETALL("h", function (err, data) {
-    redis.multi()
-        .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-            .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+tests.SUBSCRIBE = function () {
+var client1 = client, msg_count = 0, name = "SUBSCRIBE";
+
+client1.on("subscribe", function (channel, count) {
 ...</pre></li>
     </ul>
 
@@ -28748,7 +29399,23 @@ redis.HGETALL("h", function (err, data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        value1 = new Buffer("abcdefghij"),
+        field2 = new Buffer(0),
+        value2 = new Buffer(0),
+        name = "HSET",
+        timeout = 1000;
+
+    client.HSET(key, field1, value1, function (err, results) {
+        client.<span class="apidocCodeKeywordSpan">HLEN</span>(key, function (err, len) {
+            assert.ok(2 === +len);
+            next(name);
+        });
+    });
+};
+
+tests.HMSET_BUFFER_AND_ARRAY = function () {
+...</pre></li>
     </ul>
 
 
@@ -28795,26 +29462,21 @@ redis.HGETALL("h", function (err, data) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-    redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "
-hash", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3"
-;, "3", "field-4", "4" ] ]));
+// test for numeric key
+client.HMSET(key3, {
+    "0123456789": "abcdefghij",
+    "some manner of key": "a type of value"
+}, require_string("OK", name));
 
-    redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3"
-;, "field-4" ]));
-    redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-    redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-    redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "
-;v2" ]));
-    redis.<span class="apidocCodeKeywordSpan">HMGET</span>("h", "F1", "f1", "f2", test(&amp;#
-x22;HMGET", null, [ "V1", "v1", "v2" ]));
-    redis.HGETALL("h", function (err, data) {
-redis.multi()
-    .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-        .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+client.<span class="apidocCodeKeywordSpan">HMGET</span>(key1, "0123456789", "some manner of key", function (
+err, reply) {
+    assert.strictEqual("abcdefghij", reply[0].toString(), name);
+    assert.strictEqual("a type of value", reply[1].toString(), name);
+});
 
-redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-redis.TYPE("h", test("TYPE hash", null, "hash"));
+client.HMGET(key2, "0123456789", "some manner of key", function (err, reply) {
+    assert.strictEqual("abcdefghij", reply[0].toString(), name);
+    assert.strictEqual("a type of value", reply[1].toString(), name);
 ...</pre></li>
     </ul>
 
@@ -28867,26 +29529,21 @@ function' || typeof arguments[2] === 'undefined')) {
     return this.send_command('hmset', arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.ZUNIONSTORE("out3", 2, "newset", "newzset");
-redis.ZRANGE("out3", 0, -1, "withscores", test("ZUNIONSTORE with sets withscores", null, ["v1
-", "2", "v2", "3", "v3", "3"]));
+var key = "test hash",
+    field1 = "buffer",
+    value1 = new Buffer("abcdefghij"),
+    field2 = "array",
+    value2 = ["array contents"],
+    name = "HSET";
 
-// Hashes.
+client.<span class="apidocCodeKeywordSpan">HMSET</span>(key, field1, value1, field2, value2, last(name, require_string("OK&amp;#
+x22;, name)));
+};
 
-redis.HGETALL("nonex", test("HGETALL nonex", null, null));
+// TODO - add test for HMSET with optional callbacks
 
-redis.<span class="apidocCodeKeywordSpan">HMSET</span>("h", { "f1" : "v1", "field-3" : &amp;#
-x22;3" }, test("HMSET {} ok", null, OK));
-redis.HMSET("h", "f2", "v2", "field-4", 4, test("HMSET ... ok", null, OK));
-
-redis.HSETNX("h", "f1", "V1", test("HSETNX safe", null, 0));
-redis.HSETNX("h", "F1", "V1", test("HSETNX", null, 1));
-redis.HGETALL("h", test("HGETALL", null, { "F1": "V1", "f1": "v1", &amp;#
-x22;f2": "v2", "field-3": "3", "field-4": "4" }));
-
-redis.getKeyspace("*h", test("getKeyspace() with pattern", null, [ "h", "-1", "hash
-", [ "F1", "V1", "f1", "v1", "f2", "v2", "field-3", &amp;#
-x22;3", "field-4", "4" ] ]));
+tests.HMGET = function () {
+var key1 = "test hash 1", key2 = "test hash 2", key3 = 123456789, name = "HMGET";
 ...</pre></li>
     </ul>
 
@@ -29002,21 +29659,21 @@ x27;woot', '3', 'woo', '4']]));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-    redis.TYPE("h", test("TYPE hash", null, "hash"));
-    redis.HDEL("h", "field-4", "f1", "f2");
-    redis.TYPE("h", test("TYPE none", null, "none"));
-});
+var key = "test hash",
+    field1 = new Buffer("0123456789"),
+    value1 = new Buffer("abcdefghij"),
+    field2 = new Buffer(0),
+    value2 = new Buffer(0),
+    name = "HSET";
 
-redis.HDEL('hnonex', 'moot', test("HDEL nonex", null, 0));
-redis.<span class="apidocCodeKeywordSpan">HSET</span>('w00t', 'field', 'value', function () {
-    redis.HDEL('w00t', 'moot', test("HDEL nonex field", null, 0));
-});
+client.<span class="apidocCodeKeywordSpan">HSET</span>(key, field1, value1, require_number(1, name));
+client.HGET(key, field1, require_string(value1.toString(), name));
 
+// Empty value
+client.HSET(key, field1, value2, require_number(0, name));
+client.HGET([key, field1], require_string("", name));
 
-// Lists, non-blocking.
-
-redis.LPUSH("list", [ "one", "two", "three" ], test("LPUSH", null, 3));
+// Empty key, empty value
 ...</pre></li>
     </ul>
 
@@ -29472,24 +30129,22 @@ return old;
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.TYPE("not here yet", require_string("none", name));
+    client.TYPE(["hash key"], last(name, require_string("hash", name)));
+};
 
-redis.ZUNIONSTORE(
-    "out", 4, "nonex", "zset1", "zset2", "out", "weights", 10, 1, 2,
-0.5, "aggregate", "max",
-    test("ZUNIONSTORE with weights + aggregate", null, 3 )
-);
-redis.ZRANGE("out", 0, -1, "WITHSCORES", test("ZUNIONSTORE / ZRANGE", null, [ "one", "
-;2.5", "two", "5", "three", "6" ]));
-
-redis.<span class="apidocCodeKeywordSpan">KEYS</span>("*z?et*", test("KEYS with ? and *", null, [ "myzset
-", "zset1", "zset2" ]));
-redis.KEYS("my[sz]*et", test("KEYS with [] and *", null, [ "myset", "myzset" ]));
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
-
-redis.EXPIRE("out", 60);
-redis.RENAME("out", "outandabout", test("RENAME", null, OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
+tests.KEYS = function () {
+    var name = "KEYS";
+    client.mset(["test keys 1", "test val 1", "test keys 2", "test val 2"], require_string
+("OK", name));
+    client.<span class="apidocCodeKeywordSpan">KEYS</span>(["test keys*"], function (err, results) {
+        assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+        assert.strictEqual(2, results.length, name);
+        assert.ok(~results.indexOf("test keys 1"));
+        assert.ok(~results.indexOf("test keys 2"));
+        next(name);
+    });
+};
 ...</pre></li>
     </ul>
 
@@ -30274,22 +30929,23 @@ redis.LTRIM("list3", -3, -1, test("LTRIM negneg", null, OK));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.AUTH("password", test("AUTH", null, "OK"));
+client.GETSET(["getset key", "new getset val"], require_string("getset val", name));
+client.get(["getset key"], last(name, require_string("new getset val", name)));
+};
 
-redis.SET("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.<span class="apidocCodeKeywordSpan">MGET</span>("hello", "nonex", "what", test("MGET"
-;, null, [ "world", null, "where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
-
-redis.SET("hello", "vmvl");
-redis.GETBIT("hello", 7, test("GETBIT", null, 0));
-redis.GETBIT("hello", 14, test("GETBIT", null, 0));
-redis.GETBIT("hello", 21, test("GETBIT", null, 1));
+tests.MGET = function () {
+var name = "MGET";
+client.mset(["mget keys 1", "mget val 1", "mget keys 2", "mget val 2", "mget keys 3
+", "mget val 3"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">MGET</span>("mget keys 1", "mget keys 2", "mget keys 3",
+function (err, results) {
+    assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+    assert.strictEqual(3, results.length, name);
+    assert.strictEqual("mget val 1", results[0].toString(), name);
+    assert.strictEqual("mget val 2", results[1].toString(), name);
+    assert.strictEqual("mget val 3", results[2].toString(), name);
+});
+client.MGET(["mget keys 1", "mget keys 2", "mget keys 3"], function (err, results) {
 ...</pre></li>
     </ul>
 
@@ -30517,20 +31173,22 @@ redis.GETBIT("hello", 21, test("GETBIT", null, 1));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.<span class="apidocCodeKeywordSpan">MSET</span>("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
-redis.TTL("nonx", test("PSETEX expire", null, 1));
-redis.GETSET("nonx", "stay");
-redis.TTL("nonx", test("GETSET persists", null, -1));
-redis.DEL("nonx");
+tests.SCAN = function(){
+var name = 'SCAN';
+var resultArray = [];
+
+client.flushdb();
+client.<span class="apidocCodeKeywordSpan">MSET</span>(["scan test 1", "test val 1", "scan test 2", &amp;#
+x22;test val 2", "some other thing", "whoa", "another thing", "hello", "scan test
+ 3", "scan test val 3"], require_string("OK", name));
+// Get all keys
+function runAllScan(cursor, pattern){
+    client.SCAN([cursor], function(err, results){
+        assert(!err);
+        var cursor = results[0];
+        resultArray = resultArray.concat(results[1]);
 ...</pre></li>
     </ul>
 
@@ -30577,22 +31235,23 @@ redis.DEL("nonx");
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    client.ttl(["setex key"], last(name, require_number_pos(name)));
+    client.SETEX(["setex key", "100", undefined], require_error(name));
+};
 
-redis.EXPIRE("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.TTL("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.<span class="apidocCodeKeywordSpan">MSETNX</span>("somekey", "someval", "hello", "non-world
-", test("MSETNX is safe", null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+tests.MSETNX = function () {
+    var name = "MSETNX";
+    client.mset(["mset1", "val1", "mset2", "val2", "mset3", "val3"],
+require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">MSETNX</span>(["mset3", "val3", "mset4", "val4
+"], require_number(0, name));
+    client.del(["mset3"], require_number(1, name));
+    client.MSETNX(["mset3", "val3", "mset4", "val4"], require_number(1, name));
+    client.exists(["mset3"], require_number(1, name));
+    client.exists(["mset4"], last(name, require_number(1, name)));
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
+tests.HGETALL = function () {
 ...</pre></li>
     </ul>
 
@@ -31631,7 +32290,24 @@ ord.push('pun');
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        next(name);
+    });
+};
+
+tests.RANDOMKEY = function () {
+    var name = "RANDOMKEY";
+    client.mset(["test keys 1", "test val 1", "test keys 2", "test val 2"], require_string
+("OK", name));
+    client.<span class="apidocCodeKeywordSpan">RANDOMKEY</span>([], function (err, results) {
+        assert.strictEqual(null, err, name + " result sent back unexpected error: " + err);
+        assert.strictEqual(true, /\w+/.test(results), name);
+        next(name);
+    });
+};
+
+tests.RENAME = function () {
+...</pre></li>
     </ul>
 
 
@@ -31767,25 +32443,22 @@ ord.push('pun');
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+    next(name);
+});
+};
 
-redis.KEYS("*z?et*", test("KEYS with ? and *", null, [ "myzset", "zset1", "zset2"
-; ]));
-redis.KEYS("my[sz]*et", test("KEYS with [] and *", null, [ "myset", "myzset" ]));
-redis.KEYS("my[sz]{2}et", test("REGEXP escaping", null, []));
-redis.TYPE("myset", test("TYPE", null, "set"));
+tests.RENAME = function () {
+var name = "RENAME";
+client.set(['foo', 'bar'], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">RENAME</span>(["foo", "new foo"], require_string("OK",
+name));
+client.exists(["foo"], require_number(0, name));
+client.exists(["new foo"], last(name, require_number(1, name)));
+};
 
-redis.EXPIRE("out", 60);
-redis.<span class="apidocCodeKeywordSpan">RENAME</span>("out", "outandabout", test("RENAME", null,
-OK));
-redis.ZADD("outandabout", 0, "zero", test("ZADD zero", null, 1));
-redis.TTL("outandabout", test("RENAME / ZADD / TTL", null, 60));
-redis.EXISTS("out", test("EXISTS no", null, 0));
-redis.EXISTS("outandabout", test("EXISTS yes", null, 1));
-
-redis.ZADD("lexi", 1, "AAA", 1, "BBB", 1, "ZZZ", 1, "XXX", 1, "YYY",
-2, "FFF");
-redis.ZRANGE("lexi", 0, -1, test("lexicographic zset member sort", null, [ "AAA", "BBB", &amp;#
-x22;XXX", "YYY", "ZZZ", "FFF" ]));
+tests.RENAMENX = function () {
+var name = "RENAMENX";
+client.set(['foo', 'bar'], require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -31831,7 +32504,23 @@ x22;XXX", "YYY", "ZZZ", "FFF" ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["new foo"], last(name, require_number(1, name)));
+};
+
+tests.RENAMENX = function () {
+    var name = "RENAMENX";
+    client.set(['foo', 'bar'], require_string("OK", name));
+    client.set(['foo2', 'bar2'], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">RENAMENX</span>(["foo", "foo2"], require_number(0, name));
+    client.exists(["foo"], require_number(1, name));
+    client.exists(["foo2"], require_number(1, name));
+    client.del(["foo2"], require_number(1, name));
+    client.RENAMENX(["foo", "foo2"], require_number(1, name));
+    client.exists(["foo"], require_number(0, name));
+    client.exists(["foo2"], last(name, require_number(1, name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -32304,23 +32993,21 @@ redis.LINDEX("list3", -4, test("LINDEX negno", null, null));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.BITCOUNT("bitCountKey", 0, -1, test("BITCOUNT using explicit range", null, 26));
-redis.BITCOUNT("bitCountKey", 0, 0, test("BITCOUNT of first character", null, 4));
-redis.BITCOUNT("bitCountKey", -1, -1, test("BITCOUNT of last character", null, 4));
-redis.BITCOUNT("bitCountKey", 0, 3, test("BITCOUNT of substring", null, 19));
 
-// Sets.
+// Set tests were adapted from Brian Hammond's redis-node-client.js, which has a comprehensive test suite
 
-redis.<span class="apidocCodeKeywordSpan">SADD</span>("hello", "kuku", "buku", test("SADD typerror
-", BAD_TYPE, null));
-redis.SADD("myset", [ "ala", "bala" ], test("SADD multiarg", null, 2));
-redis.SADD("myset", "niza", "bala", test("SADD delta", null, 1));
-redis.SCARD("hello", test("SCARD typerror", BAD_TYPE, null));
-redis.SCARD("myset", test("SCARD", null, 3));
-redis.SADD("set2", 1, 2, 3, 4, 5);
-redis.SADD("set3", "xxx", "zzz", "yyy");
-redis.SUNIONSTORE("output", [ "nonex1", "myset", "set2", "set3", "nonex2&amp;#
-x22; ], test("SUNIONSTORE", null, 11));
+tests.SADD = function () {
+var name = "SADD";
+
+client.del('set0');
+client.<span class="apidocCodeKeywordSpan">SADD</span>('set0', 'member0', require_number(1, name));
+client.sadd('set0', 'member0', last(name, require_number(0, name)));
+};
+
+tests.SADD2 = function () {
+var name = "SADD2";
+
+client.del("set0");
 ...</pre></li>
     </ul>
 
@@ -32428,26 +33115,23 @@ setTimeout(
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-(function () {
-var redis = fake.createClient();
+    var name = 'SCAN';
+    var resultArray = [];
 
-redis.SADD('myset', 'what', 'woo', 'woot', 'www');
-redis.ZADD('myzset', 1, 'what', 4, 'woo', 3, 'woot', 2, 'www');
-redis.HMSET('myhash', 'key1', 'val1', 'key2', 'val2');
+    client.flushdb();
+    client.MSET(["scan test 1", "test val 1", "scan test 2", "test val 2", "some other
+ thing", "whoa", "another thing", "hello", "scan test 3", "scan test val 3"
+;], require_string("OK", name));
+    // Get all keys
+    function runAllScan(cursor, pattern){
+        client.<span class="apidocCodeKeywordSpan">SCAN</span>([cursor], function(err, results){
+assert(!err);
+var cursor = results[0];
+resultArray = resultArray.concat(results[1]);
 
-redis.<span class="apidocCodeKeywordSpan">SCAN</span>(0, test('SCAN 0 all', null, ['0', ['myset', &amp;#
-x27;myzset', 'myhash']]));
-redis.SCAN(0, 'COUNT', 2, test('SCAN 0 COUNT 2', null, ['2', ['myset', 'myzset'
-;]]));
-redis.SCAN(2, 'COUNT', 2, test('SCAN COUNT 2 rest', null, ['0', ['myhash']]));
-redis.SCAN(0, 'MATCH', '*z*', test('SCAN MATCH 1', null, ['0', ['myzset']]));
-redis.SCAN(0, 'MATCH', 'none', test('SCAN MATCH none', null, ['0', []]));
-redis.SCAN(0, 'MATCH', '*set', 'COUNT', 1, test('SCAN MATCH COUNT', null, ['1', [&amp;#
-x27;myset']]));
-redis.SCAN(0, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT empty', null, ['
-1', []]));
-redis.SCAN(1, 'MATCH', '*zset', 'COUNT', 1, test('SCAN MATCH COUNT mid', null, ['2&amp;#
-x27;, ['myzset']]));
+if (Number(cursor) !== 0){
+    runAllScan(cursor, pattern);
+}
 ...</pre></li>
     </ul>
 
@@ -32766,21 +33450,21 @@ redis3.SET("A", "Hola!!!", function () {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-(function () {
-var redis  = fake.createClient("stuff"),
-    redis2 = fake.createClient("stuff");
+// tests handling of non-existent keys
+client.GET('this_key_shouldnt_exist', last(name, require_null(name)));
+};
 
-redis.AUTH("password", test("AUTH", null, "OK"));
+tests.SET = function () {
+var name = "SET";
+client.<span class="apidocCodeKeywordSpan">SET</span>(["set key", "set val"], require_string("OK",
+name));
+client.get(["set key"], last(name, require_string("set val", name)));
+client.SET(["set key", undefined], require_error(name));
+};
 
-redis.<span class="apidocCodeKeywordSpan">SET</span>("hello", "world", test("SET", null, OK));
-redis.GET("hello", test("SET / GET", null, "world"));
-
-redis.SET("what", "who");
-redis.GETSET("what", "where", test("GETSET", null, "who"));
-redis.MGET("hello", "nonex", "what", test("MGET", null, [ "world", null, "
-;where" ]));
-redis.DEL("hello", "nonex", "what", test("DEL count", null, 2));
-redis.GET("hello", test("SET / DEL / GET", null, null));
+tests.GETSET = function () {
+var name = "GETSET";
+client.set(["getset key", "getset val"], require_string("OK", name));
 ...</pre></li>
     </ul>
 
@@ -32888,23 +33572,22 @@ redis.STRLEN("hello", test("STRLEN", null, 4));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+client.exists(["setnx key"], require_number(0, name));
+client.SETNX(["setnx key", "new setnx value"], require_number(1, name));
+client.exists(["setnx key"], last(name, require_number(1, name)));
+};
 
-redis.<span class="apidocCodeKeywordSpan">SETEX</span>("nonx", 0, "hello", test("SETEX fail", BAD_SETEX
-, null));
-redis.SETNX("nonx", "dont!", test("SETNX fail", null, 0));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.MSET("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
+tests.SETEX = function () {
+var name = "SETEX";
+client.<span class="apidocCodeKeywordSpan">SETEX</span>(["setex key", "100", "setex val"], require_string
+("OK", name));
+client.exists(["setex key"], require_number(1, name));
+client.ttl(["setex key"], last(name, require_number_pos(name)));
+client.SETEX(["setex key", "100", undefined], require_error(name));
+};
+
+tests.MSETNX = function () {
+var name = "MSETNX";
 ...</pre></li>
     </ul>
 
@@ -32951,23 +33634,22 @@ redis.GET("nonx", test("PSETEX set", null, "disappear"));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+        next(name);
+    });
+};
 
-redis.SETEX("nonx", 0, "hello", test("SETEX fail", BAD_SETEX, null));
-redis.<span class="apidocCodeKeywordSpan">SETNX</span>("nonx", "dont!", test("SETNX fail", null, 0
-));
-redis.SET("nonx", "hello", "EX", 0, test("SET with EX fail", BAD_INT, null));
-redis.SET("nonx", "hello", "PX", 0, test("SET with PX fail", BAD_INT, null));
-redis.SET("nonx", "dont!", "NX", test("SET with NX fail", null, null));
-redis.MSET("nonx", "do", test("MSET", null, OK));
-redis.send_command("psetex", [ "nonx", 1000, "disappear" ], test("PSETEX", null, OK));
-redis.GET("nonx", test("PSETEX set", null, "disappear"));
-redis.TTL("nonx", test("PSETEX expire", null, 1));
+tests.SETNX = function () {
+    var name = "SETNX";
+    client.set(["setnx key", "setnx value"], require_string("OK", name));
+    client.<span class="apidocCodeKeywordSpan">SETNX</span>(["setnx key", "new setnx value"], require_number
+(0, name));
+    client.del(["setnx key"], require_number(1, name));
+    client.exists(["setnx key"], require_number(0, name));
+    client.SETNX(["setnx key", "new setnx value"], require_number(1, name));
+    client.exists(["setnx key"], last(name, require_number(1, name)));
+};
+
+tests.SETEX = function () {
 ...</pre></li>
     </ul>
 
@@ -33699,20 +34381,22 @@ var expected = members
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+};
+
+
+tests.SREM2 = function () {
+var name = "SREM2";
+client.del("set0");
+client.sadd("set0", ["member0", "member1", "member2"], require_number(3, name));
+client.<span class="apidocCodeKeywordSpan">SREM</span>("set0", ["member1", "member2"], require_number
+(2, name));
+client.smembers("set0", function (err, res) {
+    assert.strictEqual(res.length, 1);
+    assert.ok(~res.indexOf("member0"));
 });
-
-sub2.on('punsubscribe', function (pattern) {
-    pun(null, pattern);
-
-    ord.push('pun');
-
-    sub2.<span class="apidocCodeKeywordSpan">SREM</span>('testset', 'testmem', function (err, data) {
-        ord.push(data);
-    });
-
-    sub2.PUBLISH('hello', 'world', test('PUB4 ignored', null, 0));
-    sub2.PUBLISH('my.ch', 'omega', test('PUB5 unsubed', null, 2));
-});
+client.sadd("set0", ["member3", "member4", "member5"], require_number(3, name));
+client.srem("set0", ["member0", "member6"], require_number(1, name));
+client.smembers("set0", function (err, res) {
 ...</pre></li>
     </ul>
 
@@ -34300,22 +34984,21 @@ redis.SMEMBERS("output", test("SMEMBERS", null, [ "1", "2", "5", "bala"
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.GET("hi", test("SETRANGE", null, "Hello World"));
-redis.GETRANGE("hi", -5, -1, test("GETRANGE negneg", null, "World"));
-redis.SETRANGE("hi", 6, "Redis", test("SETRANGE offset", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello Redis"));
+};
 
-redis.EXPIRE("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.<span class="apidocCodeKeywordSpan">TTL</span>("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.send_command("pttl", [ "hello" ], test("PERSIST / PTTL", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
+tests.TTL = function () {
+var name = "TTL";
+client.set(["ttl key", "ttl val"], require_string("OK", name));
+client.expire(["ttl key", "100"], require_number_pos(name));
+setTimeout(function () {
+    client.<span class="apidocCodeKeywordSpan">TTL</span>(["ttl key"], last(name, require_number_pos(0, name)));
+}, 500);
+};
+
+tests.OPTIONAL_CALLBACK = function () {
+var name = "OPTIONAL_CALLBACK";
+client.del("op_cb1");
+client.set("op_cb1", "x");
 ...</pre></li>
     </ul>
 
@@ -34362,22 +35045,20 @@ redis.INCR("hello", test("INCR upset", BAD_INT, null));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.SISMEMBER("output", "bala", test("SISMEMBER yes", null, 1));
-redis.SISMEMBER("output", "what", test("SISMEMBER no", null, 0));
-redis.SISMEMBER("nonex", "what", test("SISMEMBER nonex", null, 0));
-redis.SISMEMBER("hello", "what", test("SISMEMBER bad", BAD_TYPE, null));
+    var name = "TYPE";
+    client.set(["string key", "should be a string"], require_string("OK", name));
+    client.rpush(["list key", "should be a list"], require_number_pos(name));
+    client.sadd(["set key", "should be a set"], require_number_any(name));
+    client.zadd(["zset key", "10.0", "should be a zset"], require_number_any(name));
+    client.hset(["hash key", "hashtest", "should be a hash"], require_number_any(0, name));
 
-redis.SADD("otherset", "whatever");
-redis.SINTERSTORE("nothing", "otherset", "output", test("SINTERSTORE empty out", null, 0
-));
-redis.<span class="apidocCodeKeywordSpan">TYPE</span>("nothing", test("SINTERSTORE empty out / TYPE", null, &amp;#
-x22;none"));
-
-redis.DEL("set3");
-redis.SPOP("set3", test("SPOP nothing", null, null));
-redis.SINTER("output", function (err, members) {
-    redis.SPOP("output", function (err, member) {
-        member = member ? member.toString() : "!?@#?!@?#";
+    client.<span class="apidocCodeKeywordSpan">TYPE</span>(["string key"], require_string("string", name));
+    client.TYPE(["list key"], require_string("list", name));
+    client.TYPE(["set key"], require_string("set", name));
+    client.TYPE(["zset key"], require_string("zset", name));
+    client.TYPE("not here yet", require_string("none", name));
+    client.TYPE(["hash key"], last(name, require_string("hash", name)));
+};
 ...</pre></li>
     </ul>
 
@@ -36010,7 +36691,23 @@ redis.ZUNIONSTORE(
     this.ready = ready;
     return tmp;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+// TODO - need a better way to test auth, maybe auto-config a local Redis server or something.
+// Yes, this is the real password.  Please be nice, thanks.
+tests.auth = function () {
+var name = "AUTH", client4, ready_count = 0;
+
+client4 = redis.createClient(9006, "filefish.redistogo.com");
+client4.<span class="apidocCodeKeywordSpan">auth</span>("664b1b6aaf134e1ec281945a8de702a9", function (err, res) {
+    assert.strictEqual(null, err, name);
+    assert.strictEqual("OK", res.toString(), name);
+});
+
+// test auth, then kill the connection so it'll auto-reconnect and auto-re-auth
+client4.on("ready", function () {
+    ready_count++;
+...</pre></li>
     </ul>
 
 
@@ -36492,7 +37189,23 @@ redis3.BRPOPLPUSH("step-1", "step-2", 0, test("BRPOPLPUSH step 1", null, ""));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    var lines = result.toString().split('\n').slice(0, -1);
+    assert.strictEqual(lines.length, 4);
+    assert(lines.every(function(line) {
+        return line.match(/^addr=/);
+    }));
+}
+
+bclient.<span class="apidocCodeKeywordSpan">client</span>("list", function(err, result) {
+    console.log(result.toString());
+    checkResult(result);
+    client.multi().client("list").exec(function(err, result) {
+        console.log(result.toString());
+        checkResult(result);
+        client.multi([['client', 'list']]).exec(function(err, result) {
+            console.log(result.toString());
+...</pre></li>
     </ul>
 
 
@@ -36643,7 +37356,24 @@ if (Array.isArray(args)) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        }, 50);
+    });
+});
+};
+
+tests.SLOWLOG = function () {
+var name = "SLOWLOG";
+client.<span class="apidocCodeKeywordSpan">config</span>("set", "slowlog-log-slower-than", 0, require_string
+("OK", name));
+client.slowlog("reset", require_string("OK", name));
+client.set("foo", "bar", require_string("OK", name));
+client.get("foo", require_string("bar", name));
+client.slowlog("get", function (err, res) {
+    assert.equal(res.length, 3, name);
+    assert.equal(res[0][3].length, 2, name);
+    assert.deepEqual(res[1][3], ["set", "foo", "bar"], name);
+...</pre></li>
     </ul>
 
 
@@ -36891,22 +37621,22 @@ if (Array.isArray(args)) {
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+client.FLUSHDB(require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">dbsize</span>(last(name, require_number(0, name)));
+};
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .<span class="apidocCodeKeywordSpan">dbsize</span>(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
 
-
-// Pub / Sub.
-
-(function () {
+if (bclient.reply_parser.name == "hiredis") {
 ...</pre></li>
     </ul>
 
@@ -37087,7 +37817,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.sadd("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
+
+// make sure empty mb reply works
+client.<span class="apidocCodeKeywordSpan">del</span>("some missing set");
+client.smembers("some missing set", function (err, reply) {
+    // make sure empty mb reply works
+    assert.strictEqual(true, is_empty_array(reply), name);
+});
+
+// test nested multi-bulk replies with empty mb elements.
+client.multi([
+...</pre></li>
     </ul>
 
 
@@ -37312,22 +38058,20 @@ x22;m1", "m2" ], 2, 1 ]));
     return this.stream.destroySoon();
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        "mylist", "-1", "list", [ "e3", "e2", "e1" ],
-        "myset",  "-1", "set",  [ "m1", "m2", "m3" ],
-        "myzset", "-1", "zset", [ "zm3", "-5", "zm2", "5", &amp;#
-x22;zm1", "10" ]
-    ]
-   ));
 
-//
-redis.<span class="apidocCodeKeywordSpan">end</span>();
-} ());
+## v0.2.0 - April 25, 2014
 
+* Support for `detect_buffers` and `return_buffers`.
 
-// Select.
+## v0.1.5 - April 22, 2014
 
-(function () {
-var redis1 = fake.createClient("select-test");
+* Bugfix: client.<span class="apidocCodeKeywordSpan">end</span>() throws.
+
+## v0.1.3 - November 23, 2013
+
+* Bugfix: LREM 0 did nothing, must remove all matching elements.
+
+## v0.1.2 - November 14, 2013
 ...</pre></li>
     </ul>
 
@@ -37373,7 +38117,23 @@ var redis1 = fake.createClient("select-test");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+if (!server_version_at_least(client, [2, 5, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.5.x");
+    return next(name);
+}
+
+// test {EVAL - Lua integer -&gt; Redis protocol type conversion}
+client.<span class="apidocCodeKeywordSpan">eval</span>("return 100.5", 0, require_number(100, name));
+// test {EVAL - Lua string -&gt; Redis protocol type conversion}
+client.eval("return 'hello world'", 0, require_string("hello world", name));
+// test {EVAL - Lua true boolean -&gt; Redis protocol type conversion}
+client.eval("return true", 0, require_number(1, name));
+// test {EVAL - Lua false boolean -&gt; Redis protocol type conversion}
+client.eval("return false", 0, require_null(name));
+// test {EVAL - Lua status code reply -&gt; Redis protocol type conversion}
+...</pre></li>
     </ul>
 
 
@@ -37418,7 +38178,23 @@ var redis1 = fake.createClient("select-test");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.set("sha test", "eval get sha test", function (err, res) {
+    if (err) throw err;
+    // test {EVAL - is Lua able to call Redis API?}
+    client.eval(source, 0, function (err, res) {
+        require_string("eval get sha test", name)(err, res);
+        // test {EVALSHA - Can we call a SHA1 if already defined?}
+        client.<span class="apidocCodeKeywordSpan">evalsha</span>(sha, 0, require_string("eval get sha test", name));
+        // test {EVALSHA - Do we get an error on non defined SHA1?}
+        client.evalsha("ffffffffffffffffffffffffffffffffffffffff", 0, require_error(name));
+    });
+});
+
+// test {EVAL - Redis integer -&gt; Lua type conversion}
+client.set("incr key", 0, function (err, reply) {
+...</pre></li>
     </ul>
 
 
@@ -37464,23 +38240,21 @@ var redis1 = fake.createClient("select-test");
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "v2
-" ]));
-redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", "
-;v1", "v2" ]));
-redis.HGETALL("h", function (err, data) {
-    redis.multi()
-        .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-            .<span class="apidocCodeKeywordSpan">exec</span>(test("HGETALL multi/exec replies sugar", err, [ data ]));
 
-    redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-    redis.TYPE("h", test("TYPE hash", null, "hash"));
-    redis.HDEL("h", "field-4", "f1", "f2");
-    redis.TYPE("h", test("TYPE none", null, "none"));
-});
+    // Provoke an error at queue time
+    multi1 = client.multi();
+    multi1.mset("multifoo", "10", "multibar", "20", require_string("OK", name));
+    multi1.set("foo2", require_error(name));
+    multi1.incr("multifoo", require_number(11, name));
+    multi1.incr("multibar", require_number(21, name));
+    multi1.<span class="apidocCodeKeywordSpan">exec</span>(function () {
+require_error(name);
+
+// Redis 2.6.5+ will abort transactions with errors
+// see: http://redis.io/topics/transactions
+var multibar_expected = 22;
+var multifoo_expected = 12;
+if (server_version_at_least(client, [2, 6, 5])) {
 ...</pre></li>
     </ul>
 
@@ -37526,7 +38300,24 @@ redis.HGETALL("h", function (err, data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.DEL = function () {
+var name = "DEL";
+client.DEL("delkey", require_number_any(name));
+client.set("delkey", "delvalue", require_string("OK", name));
+client.DEL("delkey", require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">exists</span>("delkey", require_number(0, name));
+client.DEL("delkey", require_number(0, name));
+client.mset("delkey", "delvalue", "delkey2", "delvalue2", require_string("OK",
+name));
+client.DEL("delkey", "delkey2", last(name, require_number(2, name)));
+};
+
+tests.TYPE = function () {
+var name = "TYPE";
+...</pre></li>
     </ul>
 
 
@@ -37571,7 +38362,23 @@ redis.HGETALL("h", function (err, data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.exists(["expiry key"], last(name, require_number(0, name)));
+}, 2000);
+};
+
+tests.TTL = function () {
+var name = "TTL";
+client.set(["ttl key", "ttl val"], require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">expire</span>(["ttl key", "100"], require_number_pos(name));
+setTimeout(function () {
+    client.TTL(["ttl key"], last(name, require_number_pos(0, name)));
+}, 500);
+};
+
+tests.OPTIONAL_CALLBACK = function () {
+var name = "OPTIONAL_CALLBACK";
+...</pre></li>
     </ul>
 
 
@@ -37730,7 +38537,25 @@ redis.HGETALL("h", function (err, data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+});
+};
+
+tests.SCAN = function(){
+var name = 'SCAN';
+var resultArray = [];
+
+client.<span class="apidocCodeKeywordSpan">flushdb</span>();
+client.MSET(["scan test 1", "test val 1", "scan test 2", "test val 2", "some other
+thing", "whoa", "another thing", "hello", "scan test 3", "scan test val 3"
+;], require_string("OK", name));
+// Get all keys
+function runAllScan(cursor, pattern){
+    client.SCAN([cursor], function(err, results){
+        assert(!err);
+        var cursor = results[0];
+        resultArray = resultArray.concat(results[1]);
+...</pre></li>
     </ul>
 
 
@@ -38046,21 +38871,21 @@ redis.HGETALL("h", function (err, data) {
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    .BLPOP("nonex", 0, test("BLPOP in transaction", null, null))
-    .LPUSH("step-1", "", test("LPUSH empty string", null, 1))
-        .exec ();
 
-redis1.BRPOP("step-3", 0, test("BRPOPLPUSH step 3, chain worked.", null, [ "step-3", "" ]));
+var originalHandler = client.listeners("error").pop();
+client.removeAllListeners("error");
+client.once("error", function (err) {
+    recordedError = err;
+});
 
-redis1.MULTI()
-    .<span class="apidocCodeKeywordSpan">get</span>("hello", test("GET transblocktrans", null, "redis&amp;#
-x22;))
-    .blpop("nonex", 0, test("BLPOP in postblock transaction", null, null))
-    .publish("hello", "world", test("PUBLISH in postblock transaction", null, 1))
-        .exec ();
+client.<span class="apidocCodeKeywordSpan">get</span>("no_such_key", function (err, reply) {
+    throw toThrow;
+});
 
-redis2.BRPOPLPUSH("step-2", "step-3", 0, test("BRPOPLPUSH step 2", null, ""));
-redis2.SET("hello", "redis");
+setTimeout(function () {
+    client.listeners("error").push(originalHandler);
+    assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+    next(name);
 ...</pre></li>
     </ul>
 
@@ -38394,7 +39219,23 @@ redis2.SET("hello", "redis");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+    client.multi()
+.hmset("multihash", "a", "foo", "b", 1)
+.hmset("multihash", {
+    extra: "fancy",
+    things: "here"
+})
+.<span class="apidocCodeKeywordSpan">hgetall</span>("multihash")
+.exec(function (err, replies) {
+    assert.strictEqual(null, err);
+    assert.equal("OK", replies[0]);
+    assert.equal(Object.keys(replies[2]).length, 4);
+    assert.equal("foo", replies[2].a);
+    assert.equal("1", replies[2].b);
+    assert.equal("fancy", replies[2].extra);
+...</pre></li>
     </ul>
 
 
@@ -38619,7 +39460,24 @@ redis2.SET("hello", "redis");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    assert.strictEqual(null, err, name);
+    assert.strictEqual(true, Buffer.isBuffer(reply), name);
+    assert.strictEqual("&lt;Buffer 73 74 72 69 6e 67 20 76 61 6c 75 65&gt;", reply.inspect(), name);
+});
+
+detect_client.hmset("hash key 2", "key 1", "val 1", "key 2", "val 2");
+// array of Buffers or Strings
+detect_client.<span class="apidocCodeKeywordSpan">hmget</span>("hash key 2", "key 1", "key 2", function
+ (err, reply) {
+    assert.strictEqual(null, err, name);
+    assert.strictEqual(true, Array.isArray(reply), name);
+    assert.strictEqual(2, reply.length, name);
+    assert.strictEqual("val 1", reply[0], name);
+    assert.strictEqual("val 2", reply[1], name);
+});
+detect_client.hmget(new Buffer("hash key 2"), "key 1", "key 2", function (err, reply) {
+...</pre></li>
     </ul>
 
 
@@ -38670,7 +39528,23 @@ function' || typeof arguments[2] === 'undefined')) {
     }
     return this.send_command('hmset', arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+});
+};
+
+tests.MULTI_6 = function () {
+var name = "MULTI_6";
+
+client.multi()
+    .<span class="apidocCodeKeywordSpan">hmset</span>("multihash", "a", "foo", "b", 1)
+    .hmset("multihash", {
+        extra: "fancy",
+        things: "here"
+    })
+    .hgetall("multihash")
+    .exec(function (err, replies) {
+        assert.strictEqual(null, err);
+...</pre></li>
     </ul>
 
 
@@ -38760,7 +39634,22 @@ function' || typeof arguments[2] === 'undefined')) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    assert.strictEqual(null, reply[1], name);
+    next(name);
+});
+};
+
+tests.HINCRBY = function () {
+var name = "HINCRBY";
+client.<span class="apidocCodeKeywordSpan">hset</span>("hash incr", "value", 10, require_number(1, name));
+client.HINCRBY("hash incr", "value", 1, require_number(11, name));
+client.HINCRBY("hash incr", "value 2", 1, last(name, require_number(1, name)));
+};
+
+tests.SUBSCRIBE = function () {
+var client1 = client, msg_count = 0, name = "SUBSCRIBE";
+...</pre></li>
     </ul>
 
 
@@ -38940,7 +39829,23 @@ function' || typeof arguments[2] === 'undefined')) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        return next(name);
+    }
+
+    // Test incr with the maximum JavaScript number value. Since we are
+    // returning buffers we should get back one more as a Buffer.
+    bclient.set("seq", "9007199254740992", function (err, result) {
+        assert.strictEqual(result.toString(), "OK");
+        bclient.<span class="apidocCodeKeywordSpan">incr</span>("seq", function (err, result) {
+            assert.strictEqual("9007199254740993", result.toString());
+            next(name);
+        });
+    });
+};
+
+tests.MULTI_1 = function () {
+...</pre></li>
     </ul>
 
 
@@ -39155,20 +40060,21 @@ function' || typeof arguments[2] === 'undefined')) {
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        client.sadd("bigset", "member " + set_size);
-        set_size -= 1;
-    }
-
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .<span class="apidocCodeKeywordSpan">keys</span>("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+            extra: "fancy",
+            things: "here"
+        })
+        .hgetall("multihash")
+        .exec(function (err, replies) {
+            assert.strictEqual(null, err);
+            assert.equal("OK", replies[0]);
+            assert.equal(Object.<span class="apidocCodeKeywordSpan">keys</span>(replies[2]).length, 4);
+            assert.equal("foo", replies[2].a);
+            assert.equal("1", replies[2].b);
+            assert.equal("fancy", replies[2].extra);
+            assert.equal("here", replies[2].things);
+            next(name);
+        });
+};
 ...</pre></li>
     </ul>
 
@@ -39574,7 +40480,24 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+client.sort('x', 'by', 'w*', 'asc', 'get', 'o*', 'get', &amp;#
+x27;p*', 'store', 'bacon', function (err) {
+    if (err) {
+        assert.fail(err, name);
+    }
+});
+
+client.<span class="apidocCodeKeywordSpan">lrange</span>('bacon', 0, -1, function (err, values) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.deepEqual(buffers_to_strings(values), ['foo', 'bux', 'bar', 'tux', 'baz&amp;#
+x27;, 'lux', 'buz', 'qux'], name);
+    next(name);
+});
+...</pre></li>
     </ul>
 
 
@@ -39799,7 +40722,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.MULTI_4 = function () {
+var name = "MULTI_4";
+
+client.multi()
+    .mset('some', '10', 'keys', '20')
+    .incr('some')
+    .incr('keys')
+    .<span class="apidocCodeKeywordSpan">mget</span>('some', 'keys')
+    .exec(function (err, replies) {
+        assert.strictEqual(null, err);
+        assert.equal('OK', replies[0]);
+        assert.equal(11, replies[1]);
+        assert.equal(21, replies[2]);
+        assert.equal(11, replies[3][0].toString());
+        assert.equal(21, replies[3][1].toString());
+...</pre></li>
     </ul>
 
 
@@ -39935,7 +40874,23 @@ x22;m1", "m2" ], 2, 1 ]));
         utils.callback_or_emit(self, callback, err, res);
     });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+if (!server_version_at_least(client, [2, 6, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.6.x");
+    return next(name);
+}
+
+monitor_client = redis.createClient();
+monitor_client.<span class="apidocCodeKeywordSpan">monitor</span>(function (err, res) {
+    client.mget("some", "keys", "foo", "bar");
+    client.set("json", JSON.stringify({
+        foo: "123",
+        bar: "sdflkdfsjk",
+        another: false
+    }));
+});
+...</pre></li>
     </ul>
 
 
@@ -40025,7 +40980,24 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+// Tests are run in the order they are defined, so FLUSHDB should always be first.
+
+tests.FLUSHDB = function () {
+var name = "FLUSHDB";
+client.select(test_db_num, require_string("OK", name));
+client2.select(test_db_num, require_string("OK", name));
+client3.select(test_db_num, require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">mset</span>("flush keys 1", "flush val 1", "flush keys 2"
+;, "flush val 2", require_string("OK", name));
+client.FLUSHDB(require_string("OK", name));
+client.dbsize(last(name, require_number(0, name)));
+};
+
+/*MODIF
+tests.INCR = function () {
+var name = "INCR";
+...</pre></li>
     </ul>
 
 
@@ -40088,25 +41060,20 @@ x22;m1", "m2" ], 2, 1 ]));
     return multi;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+});
+};
 
-    redis.HKEYS("h", test("HKEYS", null, [ "F1", "f1", "f2", "field-3"
-;, "field-4" ]));
-    redis.send_command("HINCRBYFLOAT", [ "h", "f1", 3.5 ], test("HINCRBYFLOAT fail", BAD_FLOAT
-, null));
-    redis.HINCRBY("h", "field-3", 3, test("HINCRBYFLOAT success", null, 6));
-    redis.HVALS("h", test("HVALS", null, [ "4", "6", "V1", "v1", "
-;v2" ]));
-    redis.HMGET("h", "F1", "f1", "f2", test("HMGET", null, [ "V1", &amp;#
-x22;v1", "v2" ]));
-    redis.HGETALL("h", function (err, data) {
-redis.<span class="apidocCodeKeywordSpan">multi</span>()
-    .HGETALL("h", test("HGETALL multi/exec sugar", err, data))
-        .exec(test("HGETALL multi/exec replies sugar", err, [ data ]));
+tests.MULTI_1 = function () {
+var name = "MULTI_1", multi1, multi2;
 
-redis.HDEL("h", "field-3", "F1", "F2", test("HDEL", null, 2));
-redis.TYPE("h", test("TYPE hash", null, "hash"));
-redis.HDEL("h", "field-4", "f1", "f2");
-redis.TYPE("h", test("TYPE none", null, "none"));
+// Provoke an error at queue time
+multi1 = client.<span class="apidocCodeKeywordSpan">multi</span>();
+multi1.mset("multifoo", "10", "multibar", "20", require_string("OK", name));
+multi1.set("foo2", require_error(name));
+multi1.incr("multifoo", require_number(11, name));
+multi1.incr("multibar", require_number(21, name));
+multi1.exec(function () {
+    require_error(name);
 ...</pre></li>
     </ul>
 
@@ -40875,7 +41842,23 @@ redis.TYPE("h", test("TYPE none", null, "none"));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.PSUB_UNSUB_PMSG_SUB = function () {
+    var name = "PSUB_UNSUB_PMSG_SUB";
+    // test hangs on older versions of redis, so skip
+    if (!server_version_at_least(client, [2, 6, 11])) return next(name);
+
+    client3.<span class="apidocCodeKeywordSpan">psubscribe</span>('abc*');
+    client3.subscribe('xyz');
+    client3.unsubscribe('xyz');
+    client2.publish('abcd', 'something');
+    client3.subscribe('xyz', with_timeout(name, function (err, results) {
+        next(name);
+    }, 2000));
+};
+...</pre></li>
     </ul>
 
 
@@ -41011,22 +41994,20 @@ redis.TYPE("h", test("TYPE none", null, "none"));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        .exec ();
+        if (channel == name) {
+            assert.equal(data, "Some message");
+            throw toThrow;
+        }
+    });
+    client3.subscribe(name);
 
-redis1.BRPOP("step-3", 0, test("BRPOPLPUSH step 3, chain worked.", null, [ "step-3", "" ]));
-
-redis1.MULTI()
-    .get("hello", test("GET transblocktrans", null, "redis"))
-    .blpop("nonex", 0, test("BLPOP in postblock transaction", null, null))
-    .<span class="apidocCodeKeywordSpan">publish</span>("hello", "world", test("PUBLISH in postblock transaction
-", null, 1))
-        .exec ();
-
-redis2.BRPOPLPUSH("step-2", "step-3", 0, test("BRPOPLPUSH step 2", null, ""));
-redis2.SET("hello", "redis");
-
-redis3.BRPOPLPUSH("step-1", "step-2", 0, test("BRPOPLPUSH step 1", null, ""));
-redis3.SUBSCRIBE("hello");
+    client.<span class="apidocCodeKeywordSpan">publish</span>(name, "Some message");
+    setTimeout(function () {
+        client3.listeners("error").push(originalHandlers);
+        assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+        next(name);
+    }, 150);
+};
 ...</pre></li>
     </ul>
 
@@ -41117,7 +42098,23 @@ redis3.SUBSCRIBE("hello");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client3.unsubscribe(); // reply[1] will be null
+next(name);
+};
+
+tests.PUNSUB_EMPTY = function () {
+// test situation where punsubscribe reply[1] is null
+var name = "PUNSUB_EMPTY";
+client3.<span class="apidocCodeKeywordSpan">punsubscribe</span>(); // punsubscribe from all so can test null
+client3.punsubscribe(); // reply[1] will be null
+next(name);
+};
+
+/*MODIF
+tests.UNSUB_EMPTY_CB = function () {
+var name = "UNSUB_EMPTY_CB";
+...</pre></li>
     </ul>
 
 
@@ -41152,7 +42149,23 @@ redis3.SUBSCRIBE("hello");
     this.closing = true;
     return backpressure_indicator;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+            assert.strictEqual(2, Object.keys(reply).length, name);
+            assert.strictEqual(true, Buffer.isBuffer(reply["key 1"]));
+            assert.strictEqual(true, Buffer.isBuffer(reply["key 2"]));
+            assert.strictEqual("&lt;Buffer 76 61 6c 20 31&gt;", reply["key 1"].inspect(), name);
+            assert.strictEqual("&lt;Buffer 76 61 6c 20 32&gt;", reply["key 2"].inspect(), name);
+        });
+
+        detect_client.<span class="apidocCodeKeywordSpan">quit</span>(function (err, res) {
+            next(name);
+        });
+    });
+};
+
+/*MODIF
+tests.socket_nodelay = function () {
+...</pre></li>
     </ul>
 
 
@@ -41762,7 +42775,24 @@ redis3.SUBSCRIBE("hello");
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        assert.strictEqual("bulk reply value", res[1], name);
+    });
+});
+
+// test {EVAL - Redis multi bulk -&gt; Lua type conversion}
+client.multi()
+    .del("mylist")
+    .<span class="apidocCodeKeywordSpan">rpush</span>("mylist", "a")
+    .rpush("mylist", "b")
+    .rpush("mylist", "c")
+    .exec(function (err, replies) {
+        if (err) throw err;
+        client.eval("local foo = redis.call('lrange','mylist',0,-1); return {type(foo),foo[1],foo[2],foo
+[3],# foo}", 0, function (err, res) {
+            assert.strictEqual(5, res.length, name);
+            assert.strictEqual("table", res[0], name);
+...</pre></li>
     </ul>
 
 
@@ -41853,20 +42883,21 @@ redis3.SUBSCRIBE("hello");
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-multi.SADD("fail-a", "woot", test("EXEC reply error", BAD_TYPE));
-multi.exec();
-} ());
+    next(name);
+});
+};*/
 
-(function () {
-var client = fake.createClient(), set_size = 1000;
+tests.MULTI_3 = function () {
+var name = "MULTI_3";
 
-client.<span class="apidocCodeKeywordSpan">sadd</span>("bigset", "a member");
-client.sadd("bigset", "another member");
+client.<span class="apidocCodeKeywordSpan">sadd</span>("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
 
-while (set_size &gt; 0) {
-    client.sadd("bigset", "member " + set_size);
-    set_size -= 1;
-}
+// make sure empty mb reply works
+client.del("some missing set");
+client.smembers("some missing set", function (err, reply) {
 ...</pre></li>
     </ul>
 
@@ -42004,21 +43035,20 @@ while (set_size &gt; 0) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-    while (set_size &gt; 0) {
-        client.sadd("bigset", "member " + set_size);
-        set_size -= 1;
-    }
+    // test nested multi-bulk replies with empty mb elements.
+    client.multi([
+        ["smembers", "some set"],
+        ["del", "some set"],
+        ["smembers", "some set"]
+    ])
+    .<span class="apidocCodeKeywordSpan">scard</span>("some set")
+    .exec(function (err, replies) {
+        assert.strictEqual(true, is_empty_array(replies[2]), name);
+        next(name);
+    });
+};
 
-    client.multi()
-        .<span class="apidocCodeKeywordSpan">scard</span>("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+tests.MULTI_4 = function () {
 ...</pre></li>
     </ul>
 
@@ -42064,7 +43094,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    commandSha = crypto.createHash('sha1').update(command).digest('hex');
+
+if (!server_version_at_least(client, [2, 6, 0])) {
+    console.log("Skipping " + name + " for old Redis server version &lt; 2.6.x");
+    return next(name);
+}
+
+bclient.<span class="apidocCodeKeywordSpan">script</span>("load", command, function(err, result) {
+    assert.strictEqual(result.toString(), commandSha);
+    client.multi().script("load", command).exec(function(err, result) {
+        assert.strictEqual(result[0].toString(), commandSha);
+        client.multi([['script', 'load', command]]).exec(function(err, result) {
+            assert.strictEqual(result[0].toString(), commandSha);
+            next(name);
+        });
+...</pre></li>
     </ul>
 
 
@@ -42109,7 +43155,24 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('foo', 'c', require_number(1, name));
+
+client.sadd('bar', 'c', require_number(1, name));
+
+client.sadd('baz', 'a', require_number(1, name));
+client.sadd('baz', 'd', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sdiff</span>('foo', 'bar', 'baz', function (err, values
+) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    values.sort();
+    assert.equal(values.length, 2, name);
+    assert.equal(values[0], 'b', name);
+    assert.equal(values[1], 'x', name);
+...</pre></li>
     </ul>
 
 
@@ -42154,7 +43217,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('bar', 'c', require_number(1, name));
+
+client.sadd('baz', 'a', require_number(1, name));
+client.sadd('baz', 'd', require_number(1, name));
+
+// NB: SDIFFSTORE returns the number of elements in the dstkey
+
+client.<span class="apidocCodeKeywordSpan">sdiffstore</span>('quux', 'foo', 'bar', 'baz',
+require_number(2, name));
+
+client.smembers('quux', function (err, values) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    var members = buffers_to_strings(values).sort();
+...</pre></li>
     </ul>
 
 
@@ -42175,7 +43254,23 @@ x22;m1", "m2" ], 2, 1 ]));
         utils.callback_or_emit(self, callback, err, res);
     });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    run_next_test();
+};
+
+// Tests are run in the order they are defined, so FLUSHDB should always be first.
+
+tests.FLUSHDB = function () {
+    var name = "FLUSHDB";
+    client.<span class="apidocCodeKeywordSpan">select</span>(test_db_num, require_string("OK", name));
+    client2.select(test_db_num, require_string("OK", name));
+    client3.select(test_db_num, require_string("OK", name));
+    client.mset("flush keys 1", "flush val 1", "flush keys 2", "flush val 2", require_string
+("OK", name));
+    client.FLUSHDB(require_string("OK", name));
+    client.dbsize(last(name, require_number(0, name)));
+};
+...</pre></li>
     </ul>
 
 
@@ -42280,22 +43375,21 @@ that we can't handle properly
     }
     this.command_queu ...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-redis.SETRANGE("hi", 6, "Redis", test("SETRANGE offset", null, 11));
-redis.GET("hi", test("SETRANGE", null, "Hello Redis"));
 
-redis.EXPIRE("hello", 15);
-redis.DECR("hello", test("SET / DECR", BAD_INT, null));
-redis.TTL("hello", test("EXPIRE / TTL", null, 15));
-redis.PERSIST("hello");
-redis.<span class="apidocCodeKeywordSpan">send_command</span>("pttl", [ "hello" ], test("PERSIST / PTTL
-", null, -1));
-redis.send_command("pexpireat", [ "hello", Date.now () + 250 ]);
-redis.MSETNX("somekey", "someval", "hello", "non-world", test("MSETNX is safe",
-null, 0));
-redis.GET("hello", test("GET expiring", null, "world"));
-redis.APPEND("hello", " of mine", test("APPEND upset", null,("world of mine" ).length));
-redis.INCR("hello", test("INCR upset", BAD_INT, null));
-redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
+    var originalHandler = client.listeners("error").pop();
+    client.removeAllListeners("error");
+    client.once("error", function (err) {
+        recordedError = err;
+    });
+
+    client.<span class="apidocCodeKeywordSpan">send_command</span>("no_such_command", []);
+
+    setTimeout(function () {
+        client.listeners("error").push(originalHandler);
+        assert.ok(recordedError instanceof Error);
+        next(name);
+    }, 150);
+};
 ...</pre></li>
     </ul>
 
@@ -42362,7 +43456,23 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    if (bclient.reply_parser.name == "hiredis") {
+        console.log("Skipping INCR buffer test with hiredis");
+        return next(name);
+    }
+
+    // Test incr with the maximum JavaScript number value. Since we are
+    // returning buffers we should get back one more as a Buffer.
+    bclient.<span class="apidocCodeKeywordSpan">set</span>("seq", "9007199254740992", function (err, result) {
+        assert.strictEqual(result.toString(), "OK");
+        bclient.incr("seq", function (err, result) {
+            assert.strictEqual("9007199254740993", result.toString());
+            next(name);
+        });
+    });
+};
+...</pre></li>
     </ul>
 
 
@@ -42632,7 +43742,22 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sinter</span>('sa', 'sb', function (err, intersection) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.equal(intersection.length, 2, name);
+    assert.deepEqual(buffers_to_strings(intersection).sort(), [ 'b', 'c' ], name);
+});
+...</pre></li>
     </ul>
 
 
@@ -42677,7 +43802,24 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sinterstore</span>('foo', 'sa', 'sb', 'sc', require_number
+(1, name));
+
+client.smembers('foo', function (err, members) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.deepEqual(buffers_to_strings(members), [ 'c' ], name);
+    next(name);
+...</pre></li>
     </ul>
 
 
@@ -42722,7 +43864,23 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.SISMEMBER = function () {
+var name = "SISMEMBER";
+
+client.del('set0');
+client.sadd('set0', 'member0', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">sismember</span>('set0', 'member0', require_number(1, name));
+client.sismember('set0', 'member1', last(name, require_number(0, name)));
+};
+
+tests.SCARD = function () {
+var name = "SCARD";
+
+client.del('set0');
+...</pre></li>
     </ul>
 
 
@@ -42812,7 +43970,23 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    });
+});
+};
+
+tests.SLOWLOG = function () {
+var name = "SLOWLOG";
+client.config("set", "slowlog-log-slower-than", 0, require_string("OK", name));
+client.<span class="apidocCodeKeywordSpan">slowlog</span>("reset", require_string("OK", name));
+client.set("foo", "bar", require_string("OK", name));
+client.get("foo", require_string("bar", name));
+client.slowlog("get", function (err, res) {
+    assert.equal(res.length, 3, name);
+    assert.equal(res[0][3].length, 2, name);
+    assert.deepEqual(res[1][3], ["set", "foo", "bar"], name);
+    assert.deepEqual(res[2][3], ["slowlog", "reset"], name);
+...</pre></li>
     </ul>
 
 
@@ -42858,22 +44032,21 @@ redis.DECRBY("nonx", 5, test("DECR nonexist", null, -5));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        set_size -= 1;
-    }
+client.sadd("some set", "mem 1");
+client.sadd("some set", "mem 2");
+client.sadd("some set", "mem 3");
+client.sadd("some set", "mem 4");
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .<span class="apidocCodeKeywordSpan">smembers</span>("set2")
-        .srem("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+// make sure empty mb reply works
+client.del("some missing set");
+client.<span class="apidocCodeKeywordSpan">smembers</span>("some missing set", function (err, reply) {
+    // make sure empty mb reply works
+    assert.strictEqual(true, is_empty_array(reply), name);
+});
 
-
-// Pub / Sub.
+// test nested multi-bulk replies with empty mb elements.
+client.multi([
+    ["smembers", "some set"],
 ...</pre></li>
     </ul>
 
@@ -42919,7 +44092,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.SMOVE = function () {
+var name = "SMOVE";
+
+client.del('foo');
+client.del('bar');
+
+client.sadd('foo', 'x', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">smove</span>('foo', 'bar', 'x', require_number(1, name));
+client.sismember('foo', 'x', require_number(0, name));
+client.sismember('bar', 'x', require_number(1, name));
+client.smove('foo', 'bar', 'x', last(name, require_number(0, name)));
+};
+
+tests.SINTER = function () {
+var name = "SINTER";
+...</pre></li>
     </ul>
 
 
@@ -42965,20 +44154,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-, TYPE: function (key) {
-  var K = this.getKey(null, key);
-  return K ? K.TYPE : NONE;
-}
+    return a.concat(b);
+}), require_string("OK", name));
 
-, KEYS: function (pat) {
-  var keys = this.getKeys().filter(pattern(pat));
-  keys.<span class="apidocCodeKeywordSpan">sort</span>();
-  return keys;
-}
+client.KEYS("multibulk:*", function(err, results) {
+    assert.strictEqual(null, err, "result sent back unexpected error: " + err);
+    assert.deepEqual(keys_values.map(function(val) {
+        return val[0];
+    }).<span class="apidocCodeKeywordSpan">sort</span>(), results.sort(), name);
+});
 
-, SCAN: function () {
-  return this._scan(this.getKeys(), 1, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
-}
+next(name);
+};
+
+tests.MULTIBULK_ZERO_LENGTH = function () {
+var name = "MULTIBULK_ZERO_LENGTH";
 ...</pre></li>
     </ul>
 
@@ -43024,7 +44214,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.SPOP = function () {
+var name = "SPOP";
+
+client.del('zzz');
+client.sadd('zzz', 'member0', require_number(1, name));
+client.scard('zzz', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">spop</span>('zzz', function (err, value) {
+    if (err) {
+        assert.fail(err);
+    }
+    assert.equal(value, 'member0', name);
+});
+
+client.scard('zzz', last(name, require_number(0, name)));
+...</pre></li>
     </ul>
 
 
@@ -43115,21 +44321,21 @@ x22;m1", "m2" ], 2, 1 ]));
     return this.send_command(command, arr, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-    }
+};
 
-    client.multi()
-        .scard("bigset")
-        .sadd("set2","m1","m2")
-        .keys("*")
-        .smembers("set2")
-        .<span class="apidocCodeKeywordSpan">srem</span>("set2","m3","m2","m1")
-        .dbsize(test("DBSIZE", null, 1))
-        .exec(test("multi chain with an individual callback", null, [ 1002, 2, [ "bigset", "set2" ], [ &amp;#
-x22;m1", "m2" ], 2, 1 ]));
-} ());
+tests.SREM = function () {
+var name = "SREM";
+
+client.del('set0');
+client.sadd('set0', 'member0', require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">srem</span>('set0', 'foobar', require_number(0, name));
+client.srem('set0', 'member0', require_number(1, name));
+client.scard('set0', last(name, require_number(0, name)));
+};
 
 
-// Pub / Sub.
+tests.SREM2 = function () {
+var name = "SREM2";
 ...</pre></li>
     </ul>
 
@@ -43265,7 +44471,23 @@ x22;m1", "m2" ], 2, 1 ]));
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client3.on("message", function (channel, data) {
+    console.log("incoming");
+    if (channel == name) {
+        assert.equal(data, "Some message");
+        throw toThrow;
+    }
+});
+client3.<span class="apidocCodeKeywordSpan">subscribe</span>(name);
+
+client.publish(name, "Some message");
+setTimeout(function () {
+    client3.listeners("error").push(originalHandlers);
+    assert.equal(recordedError, toThrow, "Should have caught our forced exception");
+    next(name);
+}, 150);
+...</pre></li>
     </ul>
 
 
@@ -43371,7 +44593,25 @@ function unpackageBuffersAsStrings(data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+    client.sadd('sb', 'c', require_number(1, name));
+    client.sadd('sb', 'd', require_number(1, name));
+
+    client.sadd('sc', 'c', require_number(1, name));
+    client.sadd('sc', 'd', require_number(1, name));
+    client.sadd('sc', 'e', require_number(1, name));
+
+    client.<span class="apidocCodeKeywordSpan">sunion</span>('sa', 'sb', 'sc', function (err, union
+) {
+        if (err) {
+            assert.fail(err, name);
+        }
+        assert.deepEqual(buffers_to_strings(union).sort(), ['a', 'b', 'c', 'd', 'e&amp;#
+x27;], name);
+        next(name);
+    });
+};
+...</pre></li>
     </ul>
 
 
@@ -43416,7 +44656,24 @@ function unpackageBuffersAsStrings(data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.sadd('sb', 'c', require_number(1, name));
+client.sadd('sb', 'd', require_number(1, name));
+
+client.sadd('sc', 'c', require_number(1, name));
+client.sadd('sc', 'd', require_number(1, name));
+client.sadd('sc', 'e', require_number(1, name));
+
+client.<span class="apidocCodeKeywordSpan">sunionstore</span>('foo', 'sa', 'sb', 'sc', function
+ (err, cardinality) {
+    if (err) {
+        assert.fail(err, name);
+    }
+    assert.equal(cardinality, 5, name);
+});
+
+client.smembers('foo', function (err, members) {
+...</pre></li>
     </ul>
 
 
@@ -43641,7 +44898,24 @@ function unpackageBuffersAsStrings(data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.exists(["setnx key"], last(name, require_number(1, name)));
+};
+
+tests.SETEX = function () {
+var name = "SETEX";
+client.SETEX(["setex key", "100", "setex val"], require_string("OK", name));
+client.exists(["setex key"], require_number(1, name));
+client.<span class="apidocCodeKeywordSpan">ttl</span>(["setex key"], last(name, require_number_pos(name)));
+client.SETEX(["setex key", "100", undefined], require_error(name));
+};
+
+tests.MSETNX = function () {
+var name = "MSETNX";
+client.mset(["mset1", "val1", "mset2", "val2", "mset3", "val3"], require_string
+("OK", name));
+client.MSETNX(["mset3", "val3", "mset4", "val4"], require_number(0, name));
+...</pre></li>
     </ul>
 
 
@@ -43812,7 +45086,23 @@ function unpackageBuffersAsStrings(data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+client.set(name, "one");
+client.subscribe('ChannelV', function (err, res) {
+    client.stream.destroy();
+});
+
+client.on("reconnecting", function on_recon(params) {
+    client.on("ready", function on_connect() {
+        client.<span class="apidocCodeKeywordSpan">unsubscribe</span>('ChannelV', function (err, res) {
+            client.get(name, require_string("one", name));
+            client.removeListener("connect", on_connect);
+            client.removeListener("reconnecting", on_recon);
+            next(name);
+        });
+    });
+});
+...</pre></li>
     </ul>
 
 
@@ -43971,7 +45261,23 @@ function unpackageBuffersAsStrings(data) {
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+tests.WATCH_MULTI = function () {
+    var name = 'WATCH_MULTI', multi;
+    if (!server_version_at_least(client, [2, 2, 0])) {
+        console.log("Skipping " + name + " for old Redis server version &lt; 2.2.x");
+        return next(name);
+    }
+
+    client.<span class="apidocCodeKeywordSpan">watch</span>(name);
+    client.incr(name);
+    multi = client.multi();
+    multi.incr(name);
+    multi.exec(last(name, require_null(name)));
+};
+
+tests.WATCH_TRANSACTION = function () {
+...</pre></li>
     </ul>
 
 
@@ -44125,7 +45431,24 @@ var redis  = fake.createClient("stuff"),
     }
     return this.send_command(command, arr, callback);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+};
+
+tests.TYPE = function () {
+var name = "TYPE";
+client.set(["string key", "should be a string"], require_string("OK", name));
+client.rpush(["list key", "should be a list"], require_number_pos(name));
+client.sadd(["set key", "should be a set"], require_number_any(name));
+client.<span class="apidocCodeKeywordSpan">zadd</span>(["zset key", "10.0", "should be a zset"], require_number_any
+(name));
+client.hset(["hash key", "hashtest", "should be a hash"], require_number_any(0, name));
+
+client.TYPE(["string key"], require_string("string", name));
+client.TYPE(["list key"], require_string("list", name));
+client.TYPE(["set key"], require_string("set", name));
+client.TYPE(["zset key"], require_string("zset", name));
+client.TYPE("not here yet", require_string("none", name));
+...</pre></li>
     </ul>
 
 
@@ -45618,304 +46941,6 @@ redis.HGETALL("h", function (err, data) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
-
-
-</div>
-
-<div class="apidocSectionDiv">
-<h1><a href="#apidoc.module.fakeredis.main" id="apidoc.module.fakeredis.main">module fakeredis.main</a></h1>
-
-
-
-
-    <h2>
-        <a href="#apidoc.element.fakeredis.main.Multi" id="apidoc.element.fakeredis.main.Multi">
-        function <span class="apidocSignatureSpan">fakeredis.main.</span>Multi
-        <span class="apidocSignatureSpan">(client, args)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">function Multi(client, args) {
-    this._client = client;
-    this.queue = new Queue();
-    var command, tmp_args;
-    if (args) { // Either undefined or an array. Fail hard if it's not an array
-        for (var i = 0; i &lt; args.length; i++) {
-            command = args[i][0];
-            tmp_args = args[i].slice(1);
-            if (Array.isArray(command)) {
-                this[command[0]].apply(this, command.slice(1).concat(tmp_args));
-            } else {
-                this[command].apply(this, tmp_args);
-            }
-        }
-    }
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
-
-    <h2>
-        <a href="#apidoc.element.fakeredis.main.RedisClient" id="apidoc.element.fakeredis.main.RedisClient">
-        function <span class="apidocSignatureSpan">fakeredis.main.</span>RedisClient
-        <span class="apidocSignatureSpan">(options, stream)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">function RedisClient(options, stream) {
-    // Copy the options so they are not mutated
-    options = utils.clone(options);
-    EventEmitter.call(this);
-    var cnx_options = {};
-    var self = this;
-    if (stream) {
-        // The stream from the outside is used so no connection from this side is triggered but from the server this client should
- talk to
-        // Reconnect etc won't work with this. This requires monkey patching to work, so it is not officially supported
-        options.stream = stream;
-        this.address = '"Private stream"';
-    } else if (options.path) {
-        cnx_options.path = options.path;
-        this.address = options.path;
-    } else {
-        cnx_options.port = +options.port || 6379;
-        cnx_options.host = options.host || '127.0.0.1';
-        cnx_options.family = (!options.family &amp;&amp; net.isIP(cnx_options.host)) || (options.family === 'IPv6' ? 6 : 4);
-        this.address = cnx_options.host + ':' + cnx_options.port;
-    }
-<span class="apidocCodeCommentSpan">    /* istanbul ignore next: travis does not work with stunnel atm. Therefor the tls tests are skipped on travis */
-</span>    for (var tls_option in options.tls) { // jshint ignore: line
-        cnx_options[tls_option] = options.tls[tls_option];
-    }
-    // Warn on misusing deprecated functions
-    if (typeof options.retry_strategy === 'function') {
-        if ('max_attempts' in options) {
-            self.warn('WARNING: You activated the retry_strategy and max_attempts at the same time. This is not possible and max_attempts
- will be ignored.');
-            // Do not print deprecation warnings twice
-            delete options.max_attempts;
-        }
-        if ('retry_max_delay' in options) {
-            self.warn('WARNING: You activated the retry_strategy and retry_max_delay at the same time. This is not possible and
-retry_max_delay will be ignored.');
-            // Do not print deprecation warnings twice
-            delete options.retry_max_delay;
-        }
-    }
-
-    this.connection_options = cnx_options;
-    this.connection_id = RedisClient.connection_id++;
-    this.connected = false;
-    this.ready = false;
-    if (options.socket_nodelay === undefined) {
-        options.socket_nodelay = true;
-    } else if (!options.socket_nodelay) { // Only warn users with this set to false
-        self.warn(
-            'socket_nodelay is deprecated and will be removed in v.3.0.0.\n' +
-            'Setting socket_nodelay to false likely results in a reduced throughput. Please use .batch for pipelining instead.\n
-' +
-            'If you are sure you rely on the NAGLE-algorithm you can activate it by calling client.stream.setNoDelay(false) instead
-.'
-        );
-    }
-    if (options.socket_keepalive === undefined) {
-        options.socket_keepalive = true;
-    }
-    for (var command in options.rename_commands) { // jshint ignore: line
-        options.rename_commands[command.toLowerCase()] = options.rename_commands[command];
-    }
-    options.return_buffers = !!options.return_buffers;
-    options.detect_buffers = !!options.detect_buffers;
-    // Override the detect_buffers setting if return_buffers is active and print a warning
-    if (options.return_buffers &amp;&amp; options.detect_buffers) {
-        self.warn('WARNING: You activated return_buffers and detect_buffers at the same time. The return value is always going to
- be a buffer.');
-        options.detect_buffers = false;
-    }
-    if (options.detect_buffers) {
-        // We only need to look at the arguments if we do not know what we have to return
-        this.handle_reply = handle_detect_buffers_reply;
-    }
-    this.should_buffer = false;
-    this.max_attempts = options.max_attempts | 0;
-    if ('max_attempts' in options) {
-        self.warn(
-            'max_attempts is deprecated and will be removed in v.3.0.0.\n' +
-            'To reduce the amount of options and the improve the reconnection handling please use the new `retry_strategy` option
- instead.\n' +
-            'This replaces the max_attempts and retry_max_delay option.'
-        );
-    }
-    this.command_queue = new Queue(); // Holds sent commands to de-pipeline them ...</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
-
-    <h2>
-        <a href="#apidoc.element.fakeredis.main.createClient" id="apidoc.element.fakeredis.main.createClient">
-        function <span class="apidocSignatureSpan">fakeredis.main.</span>createClient
-        <span class="apidocSignatureSpan">(port, host, options)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">createClient = function (port, host, options) {
-  if (arguments.length == 1 &amp;&amp; typeof port == "object") {
-    options = port;
-    if (options.port || options.host) {
-      port = options.port;
-      host = options.host;
-    }
-    if (options.url || options.path) {
-      host = options.url || options.path;
-      port = "";
-    }
-  }
-  var id = !port &amp;&amp; !host ? 'fake_' + (++anon) : (host || "") + ((port) ? ":" + port : null || "")
-    , lat = options &amp;&amp; options.fast || exports.fast ? 1 : null
-    , c = new Connection(backends[id] || (backends[id] = new Backend), lat, lat)
-    , real_create_stream = RedisClient.prototype.create_stream
-    , returnBuffers = options &amp;&amp; options.return_buffers
-    , detectBuffers = options &amp;&amp; options.detect_buffers;
-
-  // Mock create_stream to create a new RedisClient without creating a socket
-  RedisClient.prototype.create_stream = function () {
-    this.connected = true;
-    this.ready = true;
-  };
-
-  var cl = new RedisClient(/* options */)
-
-  // Replace the mocked create_stream function again with the original one
-  RedisClient.prototype.create_stream = real_create_stream;
-
-  if (options &amp;&amp; options.verbose)
-    c.verbose = true;
-
-  cl.end = function() {
-    cl.send_command = function(command) {
-      throw new Error("fakeredis: You've closed this connection with .end(), cannot " + command);
-    };
-  };
-
-  cl.send_command = function(command, args, callback) {
-
-    // Interpret arguments, copy-paste from mranney/redis/index.js for best compat.
-    if (typeof command !== "string") {
-      throw new Error("First argument to send_command must be the command name string, not " + typeof command);
-    }
-
-    if (Array.isArray(args)) {
-      if (typeof callback === "function") {
-        // probably the fastest way:
-        //     client.command([arg1, arg2], cb);  (straight passthrough)
-        //         send_command(command, [arg1, arg2], cb);
-      } else if (! callback) {
-        // most people find this variable argument length form more convenient, but it uses arguments, which is slower
-        //     client.command(arg1, arg2, cb);   (wraps up arguments into an array)
-        //       send_command(command, [arg1, arg2, cb]);
-        //     client.command(arg1, arg2);   (callback is optional)
-        //       send_command(command, [arg1, arg2]);
-        //     client.command(arg1, arg2, undefined);   (callback is undefined)
-        //       send_command(command, [arg1, arg2, undefined]);
-        var last_arg_type = typeof args[args.length - 1];
-        if (last_arg_type === "function" || last_arg_type === "undefined") {
-          callback = args.pop();
-        }
-      } else {
-        throw new Error("send_command: last argument must be a callback or undefined");
-      }
-    } else {
-      throw new Error("send_command: second argument must be an array");
-    }
-
-    // if the last argument is an array, expand it out.  This allows commands like this:
-    //     client.command(arg1, [arg2, arg3, arg4], cb);
-    //  and converts to:
-    //     client.command(arg1, arg2, arg3, arg4, cb);
-    // which is convenient for some things like sadd
-    if (Array.isArray(args[args.length - 1])) {
-      args = args.slice(0, - 1).concat(args[args.length - 1]);
-    }
-
-
-    // Arg check.
-
-    var useBuffers = returnBuffers;
-    var i, n;
-    n = args.length;
-    for (i = 0; i &lt; n; i++) {
-      var arg = args[i];
-
-      // buf support
-      if (Buffer.isBuffer(arg)) {
-        args[i] = packageBuffer(arg);
-        if (detectBuffers)
-          useBuffers = true;
-      }
-
-      // lint
-      else if (typeof arg !== 'string' &amp;&amp; typeof arg !== 'number') {
-        var err = new Error("fakeredis/lint: Argument #" + i + " for " + command + " is not a String, Buffer or Number: " + arg);
-        if (callback)
-          return callback(err);
-        else
-          throw err;
-      }
-    }
-
-
-    // Callback middleware.
-
-    if (callback) {
-
-      // hgetall sugar
-      if (/^hgetall/i.test(command))
-        callback = makeReplyToObjectAdaptor(callback);
-
-      // buffer support
-      callback = makeUnpackageBuffersAdaptor(useBuffers, cal ...</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-    npm install fakeredis
-
-You can use fakeredis as you would use node_redis,
-just changing the module name from `redis` to `fakeredis`:
-
-```javascript
-var client = require("fakeredis").<span class="apidocCodeKeywordSpan">createClient</span>(port, host);
-```
-
-Both parameters are optional,
-and only serve to determine if you want to reuse a an existing fakeredis instance or not.
-You can also just name your backends arbitrarily:
-
-```javascript
-...</pre></li>
-    </ul>
-
-
-
-    <h2>
-        <a href="#apidoc.element.fakeredis.main.print" id="apidoc.element.fakeredis.main.print">
-        function <span class="apidocSignatureSpan">fakeredis.main.</span>print
-        <span class="apidocSignatureSpan">(err, reply)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">function print(err, reply) {
-    if (err) {
-        // A error always begins with Error:
-        console.log(err.toString());
-    } else {
-        console.log('Reply: ' + reply);
-    }
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
 
 
 </div>
